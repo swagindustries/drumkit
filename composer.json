@@ -1,0 +1,19 @@
+{
+    "name": "swag-industries/mercure-router",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "SwagIndustries\\MercureRouter\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Nek (Maxime Veber)",
+            "email": "nek.dev@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "swoole/ide-helper": "@dev"
+    }
+}

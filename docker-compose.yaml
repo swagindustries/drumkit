@@ -1,0 +1,11 @@
+services:
+    router:
+        build: # This is PHP with swoole installed :)
+            dockerfile: ./docker/Dockerfile
+            context: .
+        volumes:
+            - .:/mercure-router
+        working_dir: /mercure-router
+        entrypoint: tail -f /dev/null
+        ports:
+            - 9501:9501
