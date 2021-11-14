@@ -4,8 +4,62 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "58df2de6f7908d470067ff5de50b8dcb",
-    "packages": [],
+    "content-hash": "7aa2fc1b654e2bd3d6cf696e873ebf9a",
+    "packages": [
+        {
+            "name": "hhxsv5/php-sse",
+            "version": "v2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hhxsv5/php-sse.git",
+                "reference": "4244e4e8b416103f585cafcf813cff81061c5752"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hhxsv5/php-sse/zipball/4244e4e8b416103f585cafcf813cff81061c5752",
+                "reference": "4244e4e8b416103f585cafcf813cff81061c5752",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~6.0",
+                "swoole/ide-helper": "@dev"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Hhxsv5\\SSE\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Xie Biao",
+                    "email": "hhxsv5@sina.com"
+                }
+            ],
+            "description": "A simple and efficient library implemented HTML5's server-sent events by PHP, is used to real-time push events from server to client, and easier than Websocket, instead of AJAX request.",
+            "homepage": "https://github.com/hhxsv5/php-sse",
+            "keywords": [
+                "Server-Sent Events",
+                "event-stream",
+                "events",
+                "eventsource",
+                "sever-events",
+                "sse"
+            ],
+            "support": {
+                "issues": "https://github.com/hhxsv5/php-sse/issues",
+                "source": "https://github.com/hhxsv5/php-sse/tree/v2.0.2"
+            },
+            "time": "2021-03-04T09:49:27+00:00"
+        }
+    ],
     "packages-dev": [
         {
             "name": "swoole/ide-helper",

@@ -15,5 +15,10 @@
     ],
     "require-dev": {
         "swoole/ide-helper": "@dev"
+    },
+    "require": {
+        "php": "^8.0",
+        "hhxsv5/php-sse": "^2.0",
+        "ext-json": "*"
     }
 }
