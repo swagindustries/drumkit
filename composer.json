@@ -13,12 +13,10 @@
             "email": "nek.dev@gmail.com"
         }
     ],
-    "require-dev": {
-        "swoole/ide-helper": "@dev"
-    },
     "require": {
         "php": "^8.0",
-        "hhxsv5/php-sse": "^2.0",
-        "ext-json": "*"
+        "ext-json": "*",
+        "amphp/http-server": "^2.1",
+        "amphp/log": "^1.1"
     }
 }

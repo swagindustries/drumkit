@@ -3,81 +3,119 @@
 
 require_once __DIR__ .'/../vendor/autoload.php';
 
-// Enable TCP Sockets and SSL
-$server = new \Swoole\HTTP\Server("0.0.0.0", 9501, SWOOLE_PROCESS, SWOOLE_SOCK_TCP | SWOOLE_SSL);
+use Amp\ByteStream\ResourceOutputStream;
+use Amp\Http\Server\HttpServer;
+use Amp\Http\Server\RequestHandler\CallableRequestHandler;
+use Amp\Http\Server\Response;
+use Amp\Http\Status;
+use Amp\Log\ConsoleFormatter;
+use Amp\Log\StreamHandler;
+use Amp\Socket;
+use Amp\Http\Server\Request;
+use Monolog\Logger;
+use Amp\ByteStream\IteratorStream;
+use Amp\Producer;
 
-// Setup the location of SSL cert and key files
-$server->set([
-
-    // Setup SSL files
-    'ssl_cert_file' => 'ssl/mercure-router.local.pem',
-    'ssl_key_file' => 'ssl/mercure-router.local-key.pem',
-
-    // Enable HTTP2 protocol
-    'open_http2_protocol' => true,
-]);
+// Run this script, then visit http://localhost:1337/ or https://localhost:1338/ in your browser.
 
 function newEvent() {
     $id = mt_rand(1, 1000);
-    return [['id' => $id, 'title' => 'title ' . $id, 'content' => 'content ' . $id]];
+    return ['id' => $id, 'title' => 'title ' . $id, 'content' => 'content ' . $id];
 }
 
 $events = [
     newEvent(),
+    newEvent(),
 ];
 
-$server->on('Request', function(\Swoole\Http\Request $request, \Swoole\Http\Response $response) use ($events) {
-    $uri = $request->server['request_uri'];
+Amp\Loop::run(static function () use (&$events) {
+    $cert = new Socket\Certificate(__DIR__ . '/../ssl/mercure-router.local.pem', __DIR__ . '/../ssl/mercure-router.local-key.pem');
 
-    if ($uri === '/') {
-        $response->end(<<<FRONT
-        <!DOCTYPE html>
-        <html>
-            <head>
-            <title>Yo</title>
-            </head>
-            <body>
-                <h1>Hello World!</h1>
-                <div id="news"></div>
-                <script>
-                var news = document.getElementById('news');
-                const evtSource = new EventSource("/sse");
-                evtSource.addEventListener('news', function (event) {
-                    news.innerHTML = news.innerHTML + "<p>"+event.data+"</p>";
-                });
-                </script>            
-            </body>            
-        </html>
-        FRONT);
-    } else if ($uri === '/newevent') {
-        // TODO
-    } else if ($uri === '/sse') {
-        $response->header('Access-Control-Allow-Origin', '*');
-        $response->header('Content-Type', 'text/event-stream');
-        $response->header('Cache-Control', 'no-cache');
-        $response->header('Connection', 'keep-alive');
-        $response->header('X-Accel-Buffering', 'no');
+    $context = (new Socket\BindContext)
+        ->withTlsContext((new Socket\ServerTlsContext)->withDefaultCertificate($cert));
 
-        $event = new \Hhxsv5\SSE\Event(function () use ($events) {
-            $news = array_pop($events); // Get news from database or service.
-            if (empty($news)) {
-                return false; // Return false if no new messages
-            }
-            $shouldStop = false; // Stop if something happens or to clear connection, browser will retry
-            if ($shouldStop) {
-                throw new \Hhxsv5\SSE\StopSSEException();
-            }
-            echo "news";
-            return \json_encode($news);
-            // return ['event' => 'ping', 'data' => 'ping data']; // Custom event temporarily: send ping event
-            // return ['id' => uniqid(), 'data' => json_encode(compact('news'))]; // Custom event Id
-        }, 'news');
+    $servers = [
+        Socket\Server::listen("0.0.0.0:1337"),
+        Socket\Server::listen("[::]:1337"),
+        Socket\Server::listen("0.0.0.0:1338", $context),
+        Socket\Server::listen("[::]:1338", $context),
+    ];
 
-        (new \Hhxsv5\SSE\SSESwoole($event, $request, $response))->start();
-    } else {
-        $response->status(404);
-        $response->end('<h1>404 ERROR</h1>');
-    }
+    $logHandler = new StreamHandler(new ResourceOutputStream(STDOUT));
+    $logHandler->setFormatter(new ConsoleFormatter);
+    $logger = new Logger('server');
+    $logger->pushHandler($logHandler);
+
+    $server = new HttpServer($servers, \Amp\Http\Server\Middleware\stack(new CallableRequestHandler(static function (Request $request) use (&$events) {
+        if ($request->getUri()->getPath() === '/') {
+            return new Response(
+                Status::OK,
+                [
+                    "content-type" => "text/html; charset=utf-8"
+                ],
+                <<<FRONT
+                <!DOCTYPE html>
+                <html lang="en">
+                    <head>
+                    <title>Yo</title>
+                    </head>
+                    <body>
+                        <h1>Hello World!</h1>
+                        <div id="news"></div>
+                        <script>
+                        //*
+                        var news = document.getElementById('news');
+                        const evtSource = new EventSource("/sse");
+                        evtSource.addEventListener('news', function (event) {
+                            news.innerHTML = news.innerHTML + "<p>"+event.data+"</p>";
+                        });
+                        //*/
+                        </script>            
+                    </body>            
+                </html>
+                FRONT
+            );
+        }
+
+        if ($request->getUri()->getPath() === '/sse') {
+            return new Response(
+                Status::OK,
+                [
+                    'Access-Control-Allow-Origin' => '*',
+                    'Content-Type' => 'text/event-stream',
+                    'Cache-Control' => 'no-cache',
+                    'X-Accel-Buffering' => 'no'
+                ],
+                new IteratorStream(new Producer(function (callable $emit) use (&$events) {
+                        while(true) {
+                            if (empty($events)) {
+                                yield new \Amp\Delayed(10);
+                            } else {
+                                $data = json_encode(array_pop($events));
+                                yield $emit(
+                                    "event: news\ndata: $data\n\n"
+                                );
+                            }
+                        }
+                    }
+                ))
+            );
+        }
+
+        if ($request->getUri()->getPath() === '/newevent') {
+            $events[] = newEvent();
+            return new Response(Status::OK, ["content-type" => "text/plain; charset=utf-8"], 'OK');
+        }
+
+        return new Response(Status::NOT_FOUND, ["content-type" => "text/plain; charset=utf-8"], '404 Not found');
+
+    }), new \Amp\Http\Server\Middleware\CompressionMiddleware(12, 1)), $logger/*, (new \Amp\Http\Server\Options())->withoutCompression()*/);
+
+    yield $server->start();
+
+    // Stop the server when SIGINT is received (this is technically optional, but it is best to call Server::stop()).
+    Amp\Loop::onSignal(\SIGINT, static function (string $watcherId) use ($server) {
+        Amp\Loop::cancel($watcherId);
+        yield $server->stop();
+    });
 });
-
-$server->start();
