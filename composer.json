@@ -17,6 +17,7 @@
         "php": "^8.0",
         "ext-json": "*",
         "amphp/http-server": "^2.1",
-        "amphp/log": "^1.1"
+        "amphp/log": "^1.1",
+        "webmozart/assert": "^1.10"
     }
 }
