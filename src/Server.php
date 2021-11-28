@@ -33,9 +33,7 @@ class Server
             $tlsContext = (new BindContext())
                 ->withTlsContext((new ServerTlsContext())->withDefaultCertificate($certificate));
 
-            if ($this->options->unsecuredPort() === 80 && 'root' !== $currentUser = get_current_user()) {
-                $logger->warning("You ran this server with user $currentUser on the port 80 (which is the default configuration), this port cannot be bind in another user than root. Please run this server as root or change the used ports. (See Options)");
-            }
+            $this->verifiyUserRights($this->options);
 
             $connections = iterator_to_array($this->generateConnections($this->options, $tlsContext));
 
@@ -53,8 +51,15 @@ class Server
             ), $logger);
 
             yield $httpServer->start();
-        });
 
+            Loop::onSignal(\SIGINT, static function (string $watcherId) use ($httpServer) {
+
+                // TODO: add things to do before shutdown (this function is currently useless)
+
+                Loop::cancel($watcherId);
+                yield $httpServer->stop();
+            });
+        });
     }
 
     public function generateConnections(Options $options, BindContext $tlsContext): \Generator
@@ -62,6 +67,18 @@ class Server
         foreach ($options->hosts() as $host) {
             yield SocketServer::listen($host . ':' . $options->unsecuredPort());
             yield SocketServer::listen($host . ':' . $options->tlsPort(), $tlsContext);
+        }
+    }
+
+    private function verifiyUserRights(Options $options)
+    {
+        if (!function_exists('posix_getuid')) {
+            return; // This is for Windows
+        }
+
+        if ($this->options->unsecuredPort() === 80 && 0 !== posix_getuid()) {
+            $currentUser = get_current_user();
+            $options->logger()->warning("You ran this server with user $currentUser on the port 80 (which is the default configuration), this port cannot be bind in another user than root. Please run this server as root or change the used ports. (See Options)");
         }
     }
 }
