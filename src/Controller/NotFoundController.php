@@ -15,9 +15,17 @@ namespace SwagIndustries\MercureRouter\Controller;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\Response;
 use Amp\Http\Status;
+use SwagIndustries\MercureRouter\Mercure\MimeTypeFileExtensionResolver;
 
 final class NotFoundController implements ControllerInterface
 {
+    private MimeTypeFileExtensionResolver $extensionResolver;
+    
+    public function __construct()
+    {
+        $this->extensionResolver = new MimeTypeFileExtensionResolver();
+    }
+
     public function support(Request $request): bool
     {
         return true;
