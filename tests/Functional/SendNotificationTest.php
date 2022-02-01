@@ -11,6 +11,8 @@
 namespace SwagIndustries\MercureRouter\Test\Functional;
 
 use Amp\Http\Client\Body\FormBody;
+use Amp\Http\Client\Connection\DefaultConnectionFactory;
+use Amp\Http\Client\Connection\UnlimitedConnectionPool;
 use Amp\Http\Client\Cookie\CookieInterceptor;
 use Amp\Http\Client\Cookie\InMemoryCookieJar;
 use Amp\Http\Client\HttpClientBuilder;
@@ -19,6 +21,9 @@ use Amp\Http\Client\Response;
 use Amp\Http\Cookie\CookieAttributes;
 use Amp\Http\Cookie\ResponseCookie;
 use Amp\Loop;
+use Amp\Socket\ClientTlsContext;
+use Amp\Socket\ConnectContext;
+use SwagIndustries\MercureRouter\Test\Functional\Pusher\Event;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Mercure\Hub;
 use Symfony\Component\Mercure\Jwt\FactoryTokenProvider;
@@ -31,8 +36,10 @@ class SendNotificationTest extends TestCase
     private string $token;
     private string $hubUrl;
     private array $topics;
+    /** @var array<Event> */
     private array $eventsToPush;
     private array $expectedEvents;
+    private array $unexpectedEvents;
     private ?\Closure $onReceivedData = null;
 
     protected function setUp(): void
@@ -43,23 +50,51 @@ class SendNotificationTest extends TestCase
         $this->hubUrl = 'https://localhost/.well-known/mercure';
         $this->eventsToPush = [];
         $this->expectedEvents = [];
+        $this->unexpectedEvents = [];
     }
 
     public function testItRespondToHttpRequest()
     {
         $this->listen('https://example.com/books/1.jsonld');
-//        $this->onReceivedData(function ($data) {
-//            if (str_contains($data, 'Hi from the test suite')) {
-//                return true;
-//            }
-//
-//            return false;
-//        });
+
         $this->expectedEvents = [
             'Hi from the test suite'
         ];
 
-        $this->push('Hi from the test suite');
+        $this->push(new Event('Hi from the test suite'));
+
+        $this->startTestLoop();
+    }
+
+    public function testItIsPossibleToListenOnAnyEvent()
+    {
+        $this->listen('*');
+
+        $this->expectedEvents = [
+            'Event on book 1',
+            'Event on book 2',
+        ];
+
+        $this->push(new Event('Event on book 1', 'https://example.com/books/1.jsonld'));
+        $this->push(new Event('Event on book 2', 'https://example.com/books/2.jsonld'));
+
+        $this->startTestLoop();
+    }
+
+    public function testIdoNotReceiveEveryEventsIfIDoNotSubscribe()
+    {
+        $this->listen('https://example.com/books/1.jsonld');
+
+        $this->expectedEvents = [
+            'Event on book 1',
+        ];
+
+        $this->unexpectedEvents = [
+            'Event on book 2',
+        ];
+
+        $this->push(new Event('Event on book 1', 'https://example.com/books/1.jsonld'));
+        $this->push(new Event('Event on book 2', 'https://example.com/books/2.jsonld'));
 
         $this->startTestLoop();
     }
@@ -81,7 +116,7 @@ class SendNotificationTest extends TestCase
         $this->topics = $topics;
     }
 
-    private function push(array|string $event)
+    private function push(Event $event)
     {
         $this->eventsToPush[] = $event;
     }
@@ -96,7 +131,13 @@ class SendNotificationTest extends TestCase
             $cookieJar = new InMemoryCookieJar();
             $hubUrl = $this->hubUrl . '?topic='.urlencode($topic);
             $cookieJar->store(new ResponseCookie('mercureAuthorization', $this->token, CookieAttributes::default()->withDomain('localhost')));
+
+            $tlsContext = (new ClientTlsContext(''))->withoutPeerVerification();
+            $connectContext = (new ConnectContext())->withTlsContext($tlsContext);
+
+
             $client = (new HttpClientBuilder())
+                ->usingPool(new UnlimitedConnectionPool(new DefaultConnectionFactory(connectContext: $connectContext)))
                 ->interceptNetwork(new CookieInterceptor($cookieJar))
                 ->build()
             ;
@@ -106,7 +147,7 @@ class SendNotificationTest extends TestCase
             // Make an asynchronous HTTP request
             $promise = $client->request($request);
 
-            $promise->onResolve(function ($error, Response $response) {
+            $promise->onResolve(function ($error, ?Response $response) {
 
                 if ($error) {
                     var_dump($error);
@@ -148,6 +189,14 @@ class SendNotificationTest extends TestCase
                         }
                     }
 
+                    foreach ($this->unexpectedEvents as $unexpectedEventIndex => $unexpectedEvent) {
+                        if (str_contains($chunk, $unexpectedEvent)) {
+                            $this->assertStringNotContainsString($unexpectedEvent, $chunk);
+                            unset($this->unexpectedEvents[$unexpectedEventIndex]);
+                            break;
+                        }
+                    }
+
                     if (empty($this->expectedEvents)) {
                         Loop::stop();
                     }
@@ -156,15 +205,19 @@ class SendNotificationTest extends TestCase
 
 
             foreach ($this->eventsToPush as $event) {
-                if (is_array($event)) {
-                    $event = json_encode($event, flags: JSON_THROW_ON_ERROR);
+                $eventContent = $event->content();
+                if (is_array($eventContent)) {
+                    $eventContent = json_encode($eventContent, flags: JSON_THROW_ON_ERROR);
                 }
                 // Notify
                 $body = new FormBody();
-                $body->addField('topic', $topic);
-                $body->addField('data', $event);
+                $body->addField('topic', $event->topic() ?? $topic);
+                $body->addField('data', $eventContent);
 
-                $notifierClient = HttpClientBuilder::buildDefault();
+                $notifierClient = (new HttpClientBuilder())
+                    ->usingPool(new UnlimitedConnectionPool(new DefaultConnectionFactory(connectContext: $connectContext)))
+                    ->build()
+                ;
                 $request = new Request('https://localhost/.well-known/mercure');
                 $request->setBody($body);
                 $request->setMethod('POST');
