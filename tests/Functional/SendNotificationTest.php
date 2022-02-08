@@ -7,6 +7,7 @@
  * For the full license, take a look to the LICENSE file
  * on the root directory of this project
  */
+declare(strict_types=1);
 
 namespace SwagIndustries\MercureRouter\Test\Functional;
 
@@ -40,6 +41,7 @@ class SendNotificationTest extends TestCase
     private array $eventsToPush;
     private array $expectedEvents;
     private array $unexpectedEvents;
+    private bool $isPrivate;
     private ?\Closure $onReceivedData = null;
 
     protected function setUp(): void
@@ -51,6 +53,7 @@ class SendNotificationTest extends TestCase
         $this->eventsToPush = [];
         $this->expectedEvents = [];
         $this->unexpectedEvents = [];
+        $this->isPrivate = false;
     }
 
     public function testItRespondToHttpRequest()
@@ -61,7 +64,7 @@ class SendNotificationTest extends TestCase
             'Hi from the test suite'
         ];
 
-        $this->push(new Event('Hi from the test suite'));
+        $this->push(new Event('Hi from the test suite', 'https://example.com/books/1.jsonld'));
 
         $this->startTestLoop();
     }
@@ -99,11 +102,50 @@ class SendNotificationTest extends TestCase
         $this->startTestLoop();
     }
 
-    public function testItRespondToSymfonyRequests()
+    public function testIListenOnManyTopics()
     {
-        $hub = new Hub('https://localhost/.well-known/mercure', new FactoryTokenProvider(new LcobucciFactory('!ChangeMe!')));
-        $id = $hub->publish(new Update('https://example.com/books/1.jsonld', 'Hi from Symfony!'));
-        dump($id);
+        $this->listen(
+            'https://example.com/books/1.jsonld',
+            'https://example.com/books/2.jsonld',
+            'https://example.com/goats',
+        );
+        $this->expectedEvents = [
+            'Event on book 1',
+            'Event on book 2',
+            'Event on goats',
+        ];
+
+        $this->push(new Event('Event on book 1', 'https://example.com/books/1.jsonld'));
+        $this->push(new Event('Event on book 2', 'https://example.com/books/2.jsonld'));
+        $this->push(new Event('Event on goats', 'https://example.com/goats'));
+
+        $this->startTestLoop();
+
+    }
+
+    public function testItReceivedPrivateNotificationsContainedInTheJwt()
+    {
+        $this->listen('https://example.com/books/1.jsonld');
+
+        $this->expectedEvents = [
+            'Event on book 1',
+        ];
+
+        $this->push(new Event('Event on book 1', 'https://example.com/books/1.jsonld'));
+
+        $this->startTestLoop();
+    }
+
+    public function testItDoesNotReceivePrivateNotificationsNotContainedInTheJwt()
+    {
+        $this->listen('https://example.com/books/2.jsonld');
+
+        $this->unexpectedEvents = ['Event on book 2'];
+        $this->isPrivate = true;
+
+        $this->push(new Event('Event on book 2', 'https://example.com/books/2.jsonld'));
+
+        $this->startTestLoop();
     }
 
     private function onReceivedData(\Closure $closure)
@@ -123,13 +165,18 @@ class SendNotificationTest extends TestCase
 
     private function startTestLoop()
     {
-        Assert::count($this->topics, 1, 'Multiple topic not supported by this method yet');
-        $topic = reset($this->topics);
-
-        Loop::run(function () use ($topic) {
+        $catchedException = null;
+        Loop::run(function () use (&$catchedException) {
             // Listen
             $cookieJar = new InMemoryCookieJar();
-            $hubUrl = $this->hubUrl . '?topic='.urlencode($topic);
+            $hubUrl = $this->hubUrl . '?';
+            foreach ($this->topics as $topic) {
+                if ($this->hubUrl[-1] !== '?') {
+                    $this->hubUrl .= '&';
+                }
+                $hubUrl .= 'topic='.urlencode($topic);
+            }
+
             $cookieJar->store(new ResponseCookie('mercureAuthorization', $this->token, CookieAttributes::default()->withDomain('localhost')));
 
             $tlsContext = (new ClientTlsContext(''))->withoutPeerVerification();
@@ -142,16 +189,25 @@ class SendNotificationTest extends TestCase
                 ->build()
             ;
             $request = new Request($hubUrl);
+
+            // The following hard limit timeout avoids any test case to take
+            // too much time
             $request->setTransferTimeout(2000);    // 2secs
             $request->setInactivityTimeout(2000); // 2secs
             // Make an asynchronous HTTP request
             $promise = $client->request($request);
 
-            $promise->onResolve(function ($error, ?Response $response) {
+            $promise->onResolve(function ($error, ?Response $response) use (&$catchedException) {
 
                 if ($error) {
-                    var_dump($error);
-                    echo "Unknown error\n";
+                    if ($error instanceof \Throwable) {
+                        $catchedException = $error;
+                    } else {
+                        var_dump($error);
+                        echo "Unknown error\n";
+                    }
+
+                    Loop::stop();
                     return;
                 }
 
@@ -175,11 +231,6 @@ class SendNotificationTest extends TestCase
                 // The response body is an instance of Payload, which allows buffering or streaming by the consumers choice.
                 // We could also use Amp\ByteStream\pipe() here, but we want to show some progress.
                 while (null !== $chunk = yield $response->getBody()->read()) {
-//                    $result = $this->onReceivedData($chunk);
-//                    if ($result) {
-//                        $this->assertTrue(true);
-//                        Loop::stop();
-//                    }
 
                     foreach ($this->expectedEvents as $expectedEventIndex => $expectedEvent) {
                         if (str_contains($chunk, $expectedEvent)) {
@@ -191,16 +242,21 @@ class SendNotificationTest extends TestCase
 
                     foreach ($this->unexpectedEvents as $unexpectedEventIndex => $unexpectedEvent) {
                         if (str_contains($chunk, $unexpectedEvent)) {
-                            $this->assertStringNotContainsString($unexpectedEvent, $chunk);
+                            $this->assertStringNotContainsString($unexpectedEvent, $chunk,'The event has been received');
                             unset($this->unexpectedEvents[$unexpectedEventIndex]);
                             break;
                         }
                     }
 
-                    if (empty($this->expectedEvents)) {
+                    if (empty($this->expectedEvents) && empty($this->unexpectedEvents)) {
                         Loop::stop();
                     }
                 }
+            });
+
+            Loop::delay(1500, function () {
+                // See after the event loop for checks
+                Loop::stop();
             });
 
 
@@ -211,8 +267,11 @@ class SendNotificationTest extends TestCase
                 }
                 // Notify
                 $body = new FormBody();
-                $body->addField('topic', $event->topic() ?? $topic);
+                $body->addField('topic', $event->topic());
                 $body->addField('data', $eventContent);
+                if($this->isPrivate) {
+                    $body->addField('private','on');
+                }
 
                 $notifierClient = (new HttpClientBuilder())
                     ->usingPool(new UnlimitedConnectionPool(new DefaultConnectionFactory(connectContext: $connectContext)))
@@ -230,5 +289,18 @@ class SendNotificationTest extends TestCase
             }
 
         });
+
+        if ($catchedException !== null) {
+            throw $catchedException;
+        }
+
+        foreach ($this->expectedEvents as $event) {
+            $this->assertStringNotContainsString($event, '', 'The event has not been received');
+        }
+
+        foreach ($this->unexpectedEvents as $unexpectedEvent) {
+            // Trigger an assertion to validate the test
+            $this->assertTrue(true);
+        }
     }
 }
