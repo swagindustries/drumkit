@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "50a6ac09f7678b5c34244cf531778881",
+    "content-hash": "5bdfcf50624fe195f891ee543917b41e",
     "packages": [
         {
             "name": "amphp/amp",
@@ -553,6 +553,79 @@
                 }
             ],
             "time": "2021-12-14T23:24:42+00:00"
+        },
+        {
+            "name": "amphp/http-server-form-parser",
+            "version": "v1.1.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/http-server-form-parser.git",
+                "reference": "657d945ebc4d5a3b1ea7b1d25c52fb2fdb118f1d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/http-server-form-parser/zipball/657d945ebc4d5a3b1ea7b1d25c52fb2fdb118f1d",
+                "reference": "657d945ebc4d5a3b1ea7b1d25c52fb2fdb118f1d",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^2",
+                "amphp/byte-stream": "^1.3",
+                "amphp/http": "^1",
+                "amphp/http-server": "^2 || ^1 || ^0.8",
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "amphp/log": "^1.0",
+                "amphp/php-cs-fixer-config": "dev-master",
+                "amphp/phpunit-util": "^1.1.2",
+                "phpunit/phpunit": "^9 || ^8 || ^7 || ^6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Amp\\Http\\Server\\FormParser\\": "src"
+                },
+                "files": [
+                    "src/functions.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daniel Lowrey",
+                    "email": "rdlowrey@php.net"
+                },
+                {
+                    "name": "Bob Weinand"
+                },
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                },
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                }
+            ],
+            "description": "A form parser for Amp's HTTP parser.",
+            "homepage": "https://github.com/amphp/http-server-form-parser",
+            "keywords": [
+                "amp",
+                "amphp",
+                "async",
+                "form",
+                "http",
+                "non-blocking"
+            ],
+            "support": {
+                "issues": "https://github.com/amphp/http-server-form-parser/issues",
+                "source": "https://github.com/amphp/http-server-form-parser/tree/master"
+            },
+            "time": "2020-03-24T20:17:15+00:00"
         },
         {
             "name": "amphp/log",
@@ -5399,10 +5472,10 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.0",
+        "php": "^8.1",
         "ext-json": "*",
         "ext-pcntl": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.2.0"
 }

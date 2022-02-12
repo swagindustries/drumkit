@@ -33,6 +33,10 @@ final class NotFoundController implements ControllerInterface
 
     public function resolve(Request $request): Response
     {
-        return new Response(Status::NOT_FOUND, ["content-type" => "text/plain; charset=utf-8"], '404 Not found');
+        return new Response(
+            Status::NOT_FOUND,
+            ["content-type" => "text/plain; charset=utf-8"],
+            '404 Not found'
+        );
     }
 }

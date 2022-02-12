@@ -26,11 +26,7 @@ use Amp\Socket\ClientTlsContext;
 use Amp\Socket\ConnectContext;
 use SwagIndustries\MercureRouter\Test\Functional\Pusher\Event;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Mercure\Hub;
-use Symfony\Component\Mercure\Jwt\FactoryTokenProvider;
 use Symfony\Component\Mercure\Jwt\LcobucciFactory;
-use Symfony\Component\Mercure\Update;
-use Webmozart\Assert\Assert;
 
 class SendNotificationTest extends TestCase
 {
