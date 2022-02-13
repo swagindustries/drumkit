@@ -35,7 +35,7 @@ class RequestHandlerRouter implements RequestHandler
     {
         foreach ($this->controllers as $controller) {
             if ($controller->support($request)) {
-                return call([$controller, 'resolve'], $request);
+                return $controller->resolve($request);
             }
         }
 

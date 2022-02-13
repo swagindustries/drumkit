@@ -34,3 +34,16 @@ docker run \
     dunglas/mercure caddy run -config /etc/caddy/Caddyfile.dev
 ```
 
+Backward compatibility promise
+------------------------------
+
+This project is NOT designed to be used as a library. It provides a single node mercure server.
+
+This is why **no backward compatibility is provided** on any class ATM.
+
+But you can expect no behavior change in minor version, including:
+- Configuration files format
+- Command options
+
+This project follows [semver](https://semver.org/) and so we may break any of the previous statement on major version
+learn more in the CHANGELOG.md file provided as well.

@@ -1,12 +1,27 @@
 <?php
+/**
+ * This file is a part of mercure-router-php package.
+ *
+ * (c) Swag Industries <nek.dev@gmail.com>
+ *
+ * For the full license, take a look to the LICENSE file
+ * on the root directory of this project
+ */
 
 namespace SwagIndustries\MercureRouter\Controller;
 
 use Amp\Http\Server\FormParser\BufferingParser;
+use Amp\Http\Server\FormParser\Form;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\Response;
 use Amp\Http\Status;
+use Amp\Promise;
+use Amp\Success;
 use SwagIndustries\MercureRouter\Mercure\Hub;
+use SwagIndustries\MercureRouter\Mercure\Update;
+use Symfony\Component\Uid\Uuid;
+use function Amp\call;
+use function Amp\Http\Server\FormParser\parseForm;
 
 class ProducerController implements ControllerInterface
 {
@@ -21,24 +36,52 @@ class ProducerController implements ControllerInterface
         return $request->getUri()->getPath() === $this->mercurePath && $request->getMethod() === 'GET';
     }
 
-    public function resolve(Request $request): Response
+    public function resolve(Request $request): Promise
     {
         // Validation of the publication
         // see https://mercure.rocks/spec#publication
         $contentType = $request->getHeader('Content-Type');
         if ($contentType !== 'application/x-www-form-urlencoded') {
 
-            return $this->respond('Wrong content type');
+            return new Success($this->respond('Wrong content type'));
         }
 
-        $parser = new BufferingParser();
-        $form = $parser->parseForm($request);
+        return call(function () use ($request) {
 
-        // TODO
+            /** @var Form $form */
+            $form = yield parseForm($request);
 
-        return new Response(Status::OK, [
-            'Content-Type' => 'text/plain',
-        ], $id);
+            $id = $form->getValue('id') ?? Uuid::v4()->toRfc4122();
+
+            if (null !== $retry = $form->getValue('retry')) {
+                if (!ctype_digit($retry)) {
+                    return $this->respond('Wrong value for "retry" parameter');
+                }
+                $retry = (int) $retry;
+            }
+
+            $type = $form->getValue('type');
+            if ($type !== null && str_contains("\n", $type)) {
+                return $this->respond('Wrong value for "type" parameter');
+            }
+
+            $update = new Update(
+                topics: $form->getValueArray('topic'),
+                data: $form->getValue('data'),
+                // "on" is recommended
+                // but any value including empty string make it true
+                private: $form->getValue('private') !== null,
+                id: $id,
+                type: $type,
+                retry: $retry
+            );
+
+            $this->mercure->publish($update);
+
+            return new Response(Status::OK, [
+                'Content-Type' => 'text/plain',
+            ], $id);
+        });
     }
 
     private function respond(string $message): Response

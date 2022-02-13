@@ -5,22 +5,14 @@ namespace SwagIndustries\MercureRouter\Mercure;
 class Update
 {
     /** @var string[] */
-    private array $topics;
-    private ?string $data;
-    private ?bool $private;
-    private ?string $id;
-    private ?string $type;
-    private bool $retry; // Note: maybe int ?? see \Symfony\Component\Mercure\Update::__construct
+    public readonly array $topics;
+    public readonly ?string $data;
+    public readonly bool $private;
+    public readonly string $id;
+    public readonly ?string $type;
+    public readonly int $retry;
 
-    /**
-     * @param string[] $topics
-     * @param string|null $data
-     * @param bool|null $private
-     * @param string|null $id
-     * @param string|null $type
-     * @param bool $retry
-     */
-    public function __construct(array $topics, ?string $data = null, ?bool $private = null, ?string $id = null, ?string $type = null, bool $retry = false)
+    public function __construct(array $topics, ?string $data, bool $private, string $id, ?string $type, ?int $retry = null)
     {
         $this->topics = $topics;
         $this->data = $data;
@@ -29,6 +21,4 @@ class Update
         $this->type = $type;
         $this->retry = $retry;
     }
-
-
 }

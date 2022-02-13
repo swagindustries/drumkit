@@ -14,9 +14,10 @@ namespace SwagIndustries\MercureRouter\Controller;
 
 use Amp\Http\Server\Request;
 use Amp\Http\Server\Response;
+use Amp\Promise;
 
 interface ControllerInterface
 {
     public function support(Request $request): bool;
-    public function resolve(Request $request): Response;
+    public function resolve(Request $request): Promise;
 }
