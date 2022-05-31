@@ -10,24 +10,33 @@
 
 namespace SwagIndustries\MercureRouter\Mercure;
 
+use Amp\Promise;
+use SwagIndustries\MercureRouter\Mercure\Store\EventStoreInterface;
+use function Amp\call;
+
 class Hub
 {
+    public const MERCURE_PATH = '/.well-known/mercure';
+
     /** @var Subscriber[] */
     private array $subscribers;
     private Privacy $privacy;
 
-    public function __construct(Privacy $privacy = null)
+    public function __construct(private EventStoreInterface $store, Privacy $privacy = null)
     {
         $this->privacy = $privacy ?? new Privacy;
     }
 
-    public function publish(Update $update): void
+    public function publish(Update $update): Promise
     {
-        foreach ($this->subscribers as $subscriber) {
-            if ($this->privacy->subscriberCanReceive($subscriber, $update)) {
-                $subscriber->dispatch($update);
+        return call(function () use ($update) {
+            foreach ($this->subscribers as $subscriber) {
+                yield $this->store->store($update);
+                if ($this->privacy->subscriberCanReceive($subscriber, $update)) {
+                    yield $subscriber->dispatch($update);
+                }
             }
-        }
+        });
     }
 
     public function addSubscriber($subscriber): void

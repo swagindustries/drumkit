@@ -10,6 +10,8 @@
 
 namespace SwagIndustries\MercureRouter\Mercure;
 
+use Amp\Promise;
+
 class Subscriber
 {
     public readonly array $privateTopics;
@@ -22,7 +24,7 @@ class Subscriber
         $this->privateTopics = [];
     }
 
-    public function dispatch(Update $update)
+    public function dispatch(Update $update): Promise
     {
         // TODO
     }

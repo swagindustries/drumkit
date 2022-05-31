@@ -26,14 +26,14 @@ use function Amp\Http\Server\FormParser\parseForm;
 class ProducerController implements ControllerInterface
 {
     public function __construct(
-        private string $mercurePath = '/.well-known/mercure',
         private Hub $mercure,
         private ResponseMode $mode = ResponseMode::NORMAL,
+        private string $mercurePath = Hub::MERCURE_PATH,
     ) {}
 
     public function support(Request $request): bool
     {
-        return $request->getUri()->getPath() === $this->mercurePath && $request->getMethod() === 'GET';
+        return $request->getUri()->getPath() === $this->mercurePath && $request->getMethod() === 'POST';
     }
 
     public function resolve(Request $request): Promise
@@ -76,7 +76,7 @@ class ProducerController implements ControllerInterface
                 retry: $retry
             );
 
-            $this->mercure->publish($update);
+            yield $this->mercure->publish($update);
 
             return new Response(Status::OK, [
                 'Content-Type' => 'text/plain',
