@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5bdfcf50624fe195f891ee543917b41e",
+    "content-hash": "13634a7155f401800f21cc925c619cb0",
     "packages": [
         {
             "name": "amphp/amp",
@@ -1552,6 +1552,61 @@
             "time": "2021-10-01T21:08:31+00:00"
         },
         {
+            "name": "php-ds/php-ds",
+            "version": "v1.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-ds/polyfill.git",
+                "reference": "43d2df301a9e2017f67b8c11d94a5222f9c00fd1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-ds/polyfill/zipball/43d2df301a9e2017f67b8c11d94a5222f9c00fd1",
+                "reference": "43d2df301a9e2017f67b8c11d94a5222f9c00fd1",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=7.0"
+            },
+            "provide": {
+                "ext-ds": "1.3.0"
+            },
+            "require-dev": {
+                "php-ds/tests": "^1.3"
+            },
+            "suggest": {
+                "ext-ds": "to improve performance and reduce memory usage"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Ds\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Rudi Theunissen",
+                    "email": "rudolf.theunissen@gmail.com"
+                }
+            ],
+            "keywords": [
+                "data structures",
+                "ds",
+                "php",
+                "polyfill"
+            ],
+            "support": {
+                "issues": "https://github.com/php-ds/polyfill/issues",
+                "source": "https://github.com/php-ds/polyfill/tree/v1.4.1"
+            },
+            "time": "2022-03-09T20:39:30+00:00"
+        },
+        {
             "name": "psr/http-message",
             "version": "1.0.1",
             "source": {
@@ -2128,6 +2183,62 @@
                 }
             ],
             "time": "2021-10-21T20:53:46+00:00"
+        },
+        {
+            "name": "amphp/phpunit-util",
+            "version": "v2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/phpunit-util.git",
+                "reference": "be64a5285aa1671cea8e546963a21cca67044842"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/phpunit-util/zipball/be64a5285aa1671cea8e546963a21cca67044842",
+                "reference": "be64a5285aa1671cea8e546963a21cca67044842",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1",
+                "phpunit/phpunit": "^6 | ^7 | ^8 | ^9"
+            },
+            "require-dev": {
+                "amphp/amp": "^2",
+                "amphp/php-cs-fixer-config": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Amp\\PHPUnit\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                },
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                }
+            ],
+            "description": "Helper package to ease testing with PHPUnit.",
+            "homepage": "https://amphp.org/phpunit-util",
+            "support": {
+                "issues": "https://github.com/amphp/phpunit-util/issues",
+                "source": "https://github.com/amphp/phpunit-util/tree/v2.0.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/amphp",
+                    "type": "github"
+                }
+            ],
+            "time": "2021-12-03T20:41:01+00:00"
         },
         {
             "name": "doctrine/instantiator",
@@ -5474,8 +5585,9 @@
     "platform": {
         "php": "^8.1",
         "ext-json": "*",
+        "ext-ds": "*",
         "ext-pcntl": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }

@@ -18,17 +18,18 @@ use Amp\Success;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use SwagIndustries\MercureRouter\Mercure\Update;
+use Ds\Map;
 
 class InMemoryEventStore implements EventStoreInterface
 {
-    /** @var array<string, Update> id is the array key, the array is ordered */
-    private array $store;
+    /** @var Map<string, Update> id is the array key, the array is ordered */
+    private Map $store;
     private int $size;
     private LoggerInterface $logger;
 
     public function __construct($size = 1000, LoggerInterface $logger = null)
     {
-        $this->store = [];
+        $this->store = new Map();
         $this->size = $size;
         $this->logger = $logger ?? new NullLogger();
     }
@@ -41,7 +42,7 @@ class InMemoryEventStore implements EventStoreInterface
         }
 
         $this->logger->debug('Store new update', ['id' => $update->id]);
-        $this->store[$update->id] = $update;
+        $this->store->put($update->id, $update);
 
         return new Success();
     }
@@ -51,13 +52,14 @@ class InMemoryEventStore implements EventStoreInterface
         $sendEvents = $lastEventId === self::EARLIEST;
 
         $reconciliation = [];
-        foreach ($this->store as $eventId => $event) {
+        foreach ($this->store->keys() as $eventId) {
             if ($lastEventId === $eventId) {
                 $sendEvents = true;
             }
 
             if ($sendEvents) {
-                $reconciliation[$eventId] = $event;
+                $event = $this->store->get($eventId);
+                $reconciliation[] = $event;
             }
         }
 

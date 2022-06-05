@@ -21,12 +21,14 @@
     "require": {
         "php": "^8.1",
         "ext-json": "*",
+        "ext-ds": "*",
         "amphp/http-server": "^2.1",
         "amphp/log": "^1.1",
         "webmozart/assert": "^1.10",
         "ext-pcntl": "*",
         "symfony/uid": "^6.0",
-        "amphp/http-server-form-parser": "^1.1"
+        "amphp/http-server-form-parser": "^1.1",
+        "php-ds/php-ds": "^1.4"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",
@@ -36,6 +38,7 @@
         "lcobucci/jwt": "^4.1",
         "symfony/mime": "^6.0",
         "amphp/http-client": "^4.6",
-        "amphp/http-client-cookies": "^1.2"
+        "amphp/http-client-cookies": "^1.2",
+        "amphp/phpunit-util": "^2.0"
     }
 }
