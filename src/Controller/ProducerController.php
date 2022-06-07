@@ -8,6 +8,8 @@
  * on the root directory of this project
  */
 
+declare(strict_types=1);
+
 namespace SwagIndustries\MercureRouter\Controller;
 
 use Amp\Http\Server\FormParser\BufferingParser;

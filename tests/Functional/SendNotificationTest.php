@@ -65,6 +65,19 @@ class SendNotificationTest extends TestCase
         $this->startTestLoop();
     }
 
+    public function testItSupportsMultilineStringEvents()
+    {
+        $this->listen('https://example.com/books/1.jsonld');
+
+        $this->expectedEvents = [
+            "Hi\n\n\nit still works!"
+        ];
+
+        $this->push(new Event("Hi\n\n\nit still works!", 'https://example.com/books/1.jsonld'));
+
+        $this->startTestLoop();
+    }
+
     public function testItIsPossibleToListenOnAnyEvent()
     {
         $this->listen('*');

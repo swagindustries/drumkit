@@ -12,7 +12,9 @@ declare(strict_types=1);
 
 namespace SwagIndustries\MercureRouter\RequestHandlers;
 
+use SwagIndustries\MercureRouter\Mercure\Hub;
+
 interface RequestHandlerRouterFactoryInterface
 {
-    public function createRequestHandlerRouter(): RequestHandlerRouter;
+    public function createRequestHandlerRouter(Hub $mercure): RequestHandlerRouter;
 }

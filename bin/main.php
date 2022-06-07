@@ -7,7 +7,8 @@ require_once __DIR__ .'/../vendor/autoload.php';
 $server = new \SwagIndustries\MercureRouter\Server(
     new \SwagIndustries\MercureRouter\Configuration\Options(
         __DIR__.'/../ssl/mercure-router.local.pem',
-        __DIR__.'/../ssl/mercure-router.local-key.pem'
+        __DIR__.'/../ssl/mercure-router.local-key.pem',
+        devMode: true
     )
 );
 $server->start();

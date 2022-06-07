@@ -7,13 +7,14 @@
  * For the full license, take a look to the LICENSE file
  * on the root directory of this project
  */
-
+declare(strict_types=1);
 namespace SwagIndustries\MercureRouter\Controller;
 
 use Amp\ByteStream\IteratorStream;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\Response;
 use Amp\Http\Status;
+use Amp\Producer;
 use Amp\Promise;
 use SwagIndustries\MercureRouter\Http\QueryParser;
 use SwagIndustries\MercureRouter\Mercure\Hub;
@@ -34,9 +35,10 @@ class SubscribeController implements ControllerInterface
 
     public function resolve(Request $request): Promise
     {
+        /** @var array{topic?: array|string} $query */
         $query = QueryParser::parse($request->getUri()->getQuery());
 
-        $subscriber = new Subscriber();
+        $subscriber = new Subscriber((array) $query['topic']);
 
         return call(function () use ($subscriber) {
             return new Response(Status::OK,

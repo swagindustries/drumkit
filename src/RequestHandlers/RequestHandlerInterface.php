@@ -7,7 +7,7 @@
  * For the full license, take a look to the LICENSE file
  * on the root directory of this project
  */
-
+declare(strict_types=1);
 namespace SwagIndustries\MercureRouter\RequestHandlers;
 
 interface RequestHandlerInterface
