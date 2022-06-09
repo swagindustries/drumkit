@@ -5,12 +5,171 @@
     <title>Mercure</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        pre {
+            padding: 15px;
+            font-size: 0.7rem;
+            background: #ededed;
+            color: black;
+        }
+        #mercure-logo {
+            width: 300px;
+        }
+        header {
+            text-align: center;
+            font-style: italic;
+        }
+        footer {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Hello</h1>
+<header>
+    <svg version="1.1" id="mercure-logo" xmlns="http://www.w3.org/2000/svg" x="0" y="0" viewBox="0 0 765 144" xml:space="preserve">
+      <style>
+        .st2{fill:#495466}
+      </style>
+            <linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1=".0353619" y1="72" x2="144.0354" y2="72">
+        <stop offset="0" stop-color="#76c8dd"/>
+                <stop offset="1" stop-color="#2ab3d7"/>
+      </linearGradient>
+            <path d="M72 144c-39.7 0-72-32.3-72-72S32.3 0 72 0s72 32.3 72 72-32.3 72-72 72zM72 6.1C35.7 6.1 6.1 35.7 6.1 72s29.6 65.9 65.9 65.9 66-29.6 66-65.9S108.4 6.1 72 6.1z" fill="url(#SVGID_1_)"/>
+            <linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="15.4924" y1="71.2317" x2="128.5783" y2="71.2317">
+        <stop offset="0" stop-color="#76c8dd"/>
+                <stop offset="1" stop-color="#2ab3d7"/>
+      </linearGradient>
+            <path d="M72 14.7c-31.2 0-56.5 25.3-56.5 56.5 0 9.7 2.5 18.9 6.8 26.9 1.5-1.1 3.1-2.2 4.9-3.3 31-18.5 58.4-33.7 76.6-62 0 0-1.3 32-19.7 46.9-4.1 3.3-7.6 5.9-10.9 8 9.3-4.9 17.4-10.5 23.7-18 0 0-.5 21.5-16.3 31-5.9 3.5-10.8 5.5-15.8 7 9-2 14.9-4.5 19.6-7.7-4 13.3-12.7 20.3-26.2 22.3-4.9.5-9.1-.5-13.5-1.5 8.1 4.5 17.4 7 27.3 7 31.2 0 56.5-25.3 56.5-56.5S103.3 14.7 72 14.7z" fill="url(#SVGID_2_)"/>
+            <g>
+        <path class="st2" d="M270 43.8c-1.7-1.9-2.9-3.2-3.5-3.9l-15-15.6c-2.9-3.2-6.2-4.9-10.2-4.9-3.9 0-7.5 1.6-10.6 4.9l-11.2 11.9-11.2-11.9c-2.8-3.2-6.1-4.9-10.2-4.9-3.8 0-7.2 1.6-10.2 4.9l-15 15.6c-.7.7-1.8 1.8-3.3 3.5-1.5 1.6-2.9 3.4-4 5.2s-1.7 4.2-1.8 6.9v56.2c0 3.9 1.3 7 3.8 9.2 2.6 2.2 5.6 3.3 9.1 3.3s6.6-1.1 9.1-3.3c2.6-2.2 3.8-5.3 3.8-9.2V54.9c0-4.7 3.8-8.5 8.5-8.5s8.5 3.8 8.5 8.5v56.9c0 4 1.3 7.2 3.8 9.4 2.6 2.3 5.6 3.4 9.1 3.4 3.4 0 6.4-1.1 9-3.4 2.6-2.3 3.8-5.4 3.8-9.4V55c0-4.8 3.9-8.6 8.6-8.6 4.8 0 8.6 3.9 8.6 8.6v56.7c0 3.9 1.3 7 3.8 9.2 2.6 2.2 5.6 3.3 9.1 3.3s6.6-1.1 9.1-3.3c2.6-2.2 3.8-5.3 3.8-9.2V55.6c-.2-2.3-.8-4.3-1.7-6.1-.6-1.9-1.9-3.8-3.6-5.7zM338.5 46.1c3.4 0 6.4-1.3 9-3.9 2.6-2.6 3.8-5.7 3.8-9.2 0-3.4-1.3-6.4-3.8-8.9s-5.5-3.8-9.1-3.8H303c-3.8 0-7.4 1-10.7 2.9-3.3 2-5.9 4.6-7.9 8-2 3.3-2.9 7-2.9 10.9V49c0 5.7.9 10.4 2.7 13.9 1.8 3.6 5.2 6.2 10.1 7.9-5.2 1.8-8.7 4.6-10.3 8.3-1.7 3.8-2.5 8.7-2.5 14.7v8c0 3.9 1 7.6 2.9 10.9 2 3.3 4.6 6 7.9 8 3.3 2 6.9 2.9 10.7 2.9h35.5c3.5-.2 6.6-1.5 9.1-4s3.8-5.4 3.8-8.8c0-3.6-1.3-6.7-3.8-9.2-2.5-2.5-5.5-3.8-9.1-3.8h-31.3V85.5H336c3.4 0 6.4-1.3 9-3.8 2.6-2.6 3.8-5.6 3.8-9 0-3.6-1.3-6.7-3.8-9.2-2.5-2.5-5.5-3.8-9.1-3.8h-28.8V46.1h31.4zM413 26.6c-4.5-4.2-9.7-6.3-15.5-6.3h-28.8c-3.6 0-6.7 1.3-9.2 3.8-2.5 2.5-3.8 5.6-3.8 9.2V111c0 3.5 1.3 6.6 3.8 9.1s5.6 3.8 9.2 3.8c3.5 0 6.5-1.3 9-3.8s3.7-5.5 3.7-9.1V73.1l25.2 30.7v7.2c0 3.4 1.2 6.4 3.7 9 2.5 2.6 5.5 3.8 9 3.8 3.4 0 6.4-1.3 8.8-3.8 2.5-2.5 3.7-5.5 3.7-9.1v-7.5c0-4.8-1-9-2.9-12.5s-5.1-6.7-9.5-9.4c8.7-4.3 13-11.4 13-21.1v-5.8c0-6-2.3-11.3-6.9-15.9L413 26.6zm-18.5 44.3h-13.1V58.7c0-7 5.6-12.6 12.6-12.6s12.6 5.6 12.6 12.6c0 6.7-5.4 12.2-12.1 12.2zM495.7 46.1c3.4 0 6.5-1.3 9.1-3.8 2.6-2.6 3.9-5.6 3.9-9 0-3.5-1.3-6.6-3.9-9.1-2.6-2.6-5.6-3.8-9.1-3.8H460c-3.9 0-7.6 1-10.9 2.9-3.3 2-6 4.6-8 8-2 3.3-2.9 7-2.9 10.9v59.6c0 3.9 1 7.6 2.9 10.9 2 3.3 4.6 6 8 8 3.3 2 7 2.9 10.9 2.9h35.4c3.5 0 6.6-1.2 9.1-3.7 2.6-2.5 3.8-5.5 3.8-9s-1.3-6.6-3.8-9.1c-2.6-2.5-5.6-3.8-9.1-3.8H464V46.1h31.7zM575.8 20c-3.5 0-6.6 1.3-9.1 3.9-2.6 2.6-3.8 5.6-3.8 9.1v53c0 6.6-5.3 11.9-11.9 11.9-6.6 0-11.9-5.3-11.9-11.9V33.6c0-3.8-1.2-7.1-3.7-9.7-2.5-2.6-5.6-3.9-9.3-3.9s-6.8 1.3-9.3 3.9c-2.5 2.6-3.7 5.7-3.7 9.4v66.4c0 4.8 1.1 9 3.4 12.7 2.3 3.6 5.3 6.5 9.2 8.5 3.9 2 8.2 3 13.1 3 5.7 0 10.5-1.5 14.5-4.4 4-2.9 6.9-7.2 8.6-12.8.2-.5.4-.7.6-.7.2 0 .3.2.3.7v4.4c0 3.6 1.3 6.7 3.8 9.2 2.6 2.5 5.6 3.8 9.1 3.8 3.6 0 6.7-1.3 9.3-3.8 2.6-2.5 3.8-5.6 3.8-9.2V33c0-3.4-1.2-6.3-3.5-8.8-2.3-2.6-5.9-4.2-9.5-4.2zM651.9 26.6c-4.5-4.2-9.7-6.3-15.5-6.3h-28.8c-3.6 0-6.7 1.3-9.2 3.8-2.5 2.5-3.8 5.6-3.8 9.2V111c0 3.5 1.3 6.6 3.8 9.1s5.6 3.8 9.2 3.8c3.5 0 6.5-1.3 9-3.8s3.7-5.5 3.7-9.1V73.1l25.2 30.7v7.2c0 3.4 1.2 6.4 3.7 9 2.5 2.6 5.5 3.8 9 3.8 3.4 0 6.4-1.3 8.8-3.8 2.5-2.5 3.7-5.5 3.7-9.1v-7.5c0-4.8-1-9-2.9-12.5s-5.1-6.7-9.5-9.4c8.7-4.3 13-11.4 13-21.1v-5.8c0-6-2.3-11.3-6.9-15.9l-12.5-12.1zm-18.5 44.3h-13.1V58.7c0-7 5.6-12.6 12.6-12.6s12.6 5.6 12.6 12.6c.1 6.7-5.4 12.2-12.1 12.2zM751.2 64.6C763.8 58 765 40.9 765 40.9c-12.6 13.8-31.4 19.9-52.6 27.5-5 1.8-7.9 1.1-9.6.7v-23h31.3c3.4 0 6.4-1.3 9-3.9 2.6-2.6 3.8-5.7 3.8-9.2 0-3.4-1.3-6.4-3.8-8.9s-5.5-3.8-9.1-3.8h-35.5c-3.8 0-7.4 1-10.7 2.9-3.3 2-5.9 4.6-7.9 8-2 3.3-2.9 7-2.9 10.9V49c0 5.7.9 10.4 2.7 13.9 1.8 3.6 5.2 6.2 10.1 7.9-5.2 1.8-8.7 4.6-10.3 8.3-1.7 3.8-2.5 8.7-2.5 14.7v8c0 3.9 1 7.6 2.9 10.9 2 3.3 4.6 6 7.9 8 3.3 2 6.9 2.9 10.7 2.9H734c3.5-.2 6.6-1.5 9.1-4s3.8-5.4 3.8-8.8c0-3.6-1.3-6.7-3.8-9.2-2.5-2.5-5.5-3.8-9.1-3.8h-31.3v-9.7c12.3-2.3 22.4-2.9 30.4-2.7 9.2-.1 15.1-3.1 18-10-3.2 1.4-7.2 2.3-13.4 2.7 3.3-.4 6.7-1.1 10.7-2.6 10.8-3.9 11.4-15.4 11.4-15.4-4.3 3.5-9.9 6-16.2 7.9 2.3-.8 4.8-1.9 7.6-3.4z"/>
+      </g>
+    </svg>
+    <h1>simple, free, in php</h1>
+    <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+            <span class="navbar-brand">Debugging Tools</span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                    <a class="nav-link" aria-current="page" href="#">Settings</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- SECTION SUBSCRIBE -->
+            <div class="col">
+                <h2>Subscribe</h2>
+                <div class="mb-3">
+                    <label for="subscribe-topic-list" class="form-label">
+                        Topics to get updates for
+                    </label>
+                    <textarea rows="3" class="form-control" id="subscribe-topic-list">https://example.com/my-private-topic</textarea>
+                </div>
+                <button class="btn btn-primary" id="subscribe-button">Subscribe</button>
+                <ul class="list-group" data-template="<li class=&quot;list-group-item&quot;>{content}</li>">
+                </ul>
+                <hr>
+
+                <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                    <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                    </symbol>
+                </svg>
+
+                <div class="alert alert-primary d-flex align-items-center" role="alert">
+                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+                    <div>
+                        <p class="card-text">
+                            A topic may be any string. <br>
+                            But it is often convenient to use an
+                            <a href="https://datatracker.ietf.org/doc/html/rfc6570">URI Template</a> as a topic.
+                            (<a href="https://uri-template-tester.mercure.rocks/">try your template here</a>)
+                            <br>
+                            Use <code>*</code> to subscribe on everything.<br>
+                        </p>
+                        <p>
+                            Examples:
+                        </p>
+                        <pre>https://project.wip/novels/{id}.jsonld
+https://project.wip/books/1.jsonld
+foo</pre>
+                    </div>
+                </div>
+            </div>
+            <!-- SECTION PUBLISH -->
+            <div class="col">
+                <h2>Publish</h2>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="publish-topic-list" class="form-label">
+                            Topics
+                        </label>
+                        <textarea rows="3" class="form-control" id="publish-topic-list">https://example.com/my-private-topic</textarea>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="publish-data" class="form-label">
+                            Data
+                        </label>
+<textarea rows="4" class="form-control" id="publish-data">
+{
+  "@id": "https://project.wip/demo/books/1.jsonld",
+  "availability": "https://schema.org/OutOfStock"
+}
+</textarea>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="publish-event-id">Event id</label>
+                        <input type="text" class="form-control" id="publish-event-id">
+                    </div>
+                    <div class="col" style="align-self: end;">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="publish-private" name="form-check-input" value="1">
+                            <label class="form-check-label" for="publish-private">private</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="publish-event-type">Event type</label>
+                        <input type="text" class="form-control" id="publish-event-type">
+                    </div>
+                    <div class="col">
+                        <label for="publish-event-retry">Event retry</label>
+                        <input type="text" class="form-control" id="publish-event-retry">
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="publish-button">Publish</button>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col">
+                <h2>Discover</h2>
+            </div>
+            <div class="col">
+                <h2>Active subscriptions</h2>
+            </div>
+        </div>
     </div>
+    <footer>
+        <hr>
+        <p>Coded with ❤️ by the team of Swag Industries.</p>
+    </footer>
+    <!-- SECTION SETTINGS -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+    <script>
+
+    </script>
 </body>
 </html>
