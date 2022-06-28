@@ -11,6 +11,7 @@
 namespace SwagIndustries\MercureRouter\Mercure;
 
 use Amp\Promise;
+use Amp\Success;
 
 class Subscriber
 {
@@ -38,7 +39,7 @@ class Subscriber
     {
         while (true) {
             if (empty($this->messages)) {
-                yield;
+                yield new Success(null);
             }
             foreach ($this->messages as $message) {
                 yield $emit($message->format());
