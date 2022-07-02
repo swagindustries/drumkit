@@ -43,11 +43,12 @@ class ProducerController implements ControllerInterface
         // Validation of the publication
         // see https://mercure.rocks/spec#publication
         $contentType = $request->getHeader('Content-Type');
-        if ($contentType !== 'application/x-www-form-urlencoded') {
+        if (!str_contains($contentType, 'application/x-www-form-urlencoded')) {
 
             return new Success($this->respond('Wrong content type'));
         }
 
+        // TODO: ignore parameters containing wrong values
         return call(function () use ($request) {
 
             /** @var Form $form */

@@ -25,6 +25,7 @@ class Hub
     public function __construct(private EventStoreInterface $store, Privacy $privacy = null)
     {
         $this->privacy = $privacy ?? new Privacy;
+        $this->subscribers = [];
     }
 
     public function publish(Update $update): Promise

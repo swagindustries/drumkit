@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace SwagIndustries\MercureRouter\Controller;
 
 use Amp\ByteStream\IteratorStream;
+use Amp\Emitter;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\Response;
 use Amp\Http\Status;
@@ -40,6 +41,8 @@ class SubscribeController implements ControllerInterface
 
         $subscriber = new Subscriber((array) $query['topic']);
 
+        $this->mercure->addSubscriber($subscriber);
+
         return call(function () use ($subscriber) {
             return new Response(Status::OK,
                 [
@@ -49,7 +52,7 @@ class SubscribeController implements ControllerInterface
                     'Cache-Control' => 'no-cache',
                     'X-Accel-Buffering' => 'no'
                 ],
-                new IteratorStream(new Producer([$subscriber, 'readEvents']))
+                new IteratorStream($subscriber->emitter->iterate())
             );
         });
     }

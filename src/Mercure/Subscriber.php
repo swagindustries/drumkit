@@ -10,6 +10,9 @@
 
 namespace SwagIndustries\MercureRouter\Mercure;
 
+use Amp\Deferred;
+use Amp\Emitter;
+use Amp\Iterator;
 use Amp\Promise;
 use Amp\Success;
 
@@ -17,6 +20,7 @@ class Subscriber
 {
     public readonly array $privateTopics;
     public readonly array $topics;
+    public readonly Emitter $emitter;
 
     /** @var Update[] */
     private array $messages;
@@ -25,6 +29,7 @@ class Subscriber
 
     public function __construct(array $topics, array $privateTopics = [])
     {
+        $this->emitter = new Emitter();
         $this->topics = [];
         $this->privateTopics = [];
         $this->messages = [];
@@ -32,19 +37,20 @@ class Subscriber
 
     public function dispatch(Update $update): Promise
     {
-        $this->messages[] = $update;
+        return $this->emitter->emit($update->format());
     }
 
-    public function readEvents(callable $emit)
-    {
-        while (true) {
-            if (empty($this->messages)) {
-                yield new Success(null);
-            }
-            foreach ($this->messages as $message) {
-                yield $emit($message->format());
-            }
-            $this->messages = [];
-        }
-    }
+
+//    public function readEvents(callable $emit)
+//    {
+//        while (true) {
+//            if (empty($this->messages)) {
+//                return;
+//            }
+//            foreach ($this->messages as $message) {
+//                yield $emit($message->format());
+//            }
+//            $this->messages = [];
+//        }
+//    }
 }
