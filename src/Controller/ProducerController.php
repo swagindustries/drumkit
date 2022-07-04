@@ -54,16 +54,17 @@ class ProducerController implements ControllerInterface
             /** @var Form $form */
             $form = yield parseForm($request);
 
-            $id = $form->getValue('id') ?? Uuid::v4()->toRfc4122();
+            $id = $this->getValue($form->getValue('id'), Uuid::v4()->toRfc4122());
 
-            if (null !== $retry = $form->getValue('retry')) {
+            $retry = $this->getValue($form->getValue('retry'), null);
+            if (null !== $retry) {
                 if (!ctype_digit($retry)) {
                     return $this->respond('Wrong value for "retry" parameter');
                 }
                 $retry = (int) $retry;
             }
 
-            $type = $form->getValue('type');
+            $type = $this->getValue($form->getValue('type'), null);
             if ($type !== null && str_contains("\n", $type)) {
                 return $this->respond('Wrong value for "type" parameter');
             }
@@ -85,6 +86,20 @@ class ProducerController implements ControllerInterface
                 'Content-Type' => 'text/plain',
             ], $id);
         });
+    }
+
+    /**
+     * Basically remove empty string to replace it by the default value
+     * this behavior is questionable but this is how work the go
+     * implementation of mercure.
+     */
+    private function getValue(?string $value, ?string $defaultValue): ?string
+    {
+        if (null === $value || $value === '') {
+            return $defaultValue;
+        }
+
+        return $value;
     }
 
     private function respond(string $message): Response

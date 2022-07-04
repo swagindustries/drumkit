@@ -39,6 +39,7 @@ class Event
     {
         // URL Encode ??
         $data = $this->data;
+        $data = str_replace("\n", "\ndata: ", $data);
 
         return "event: {$this->type}\ndata: $data\n\n";
     }
