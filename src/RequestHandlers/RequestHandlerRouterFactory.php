@@ -11,7 +11,7 @@ declare(strict_types=1);
 namespace SwagIndustries\MercureRouter\RequestHandlers;
 
 use SwagIndustries\MercureRouter\Controller\NotFoundController;
-use SwagIndustries\MercureRouter\Controller\ProducerController;
+use SwagIndustries\MercureRouter\Controller\PublishController;
 use SwagIndustries\MercureRouter\Controller\SubscribeController;
 use SwagIndustries\MercureRouter\Mercure\Hub;
 
@@ -20,7 +20,7 @@ class RequestHandlerRouterFactory implements RequestHandlerRouterFactoryInterfac
     public function createRequestHandlerRouter(Hub $mercure): RequestHandlerRouter
     {
         return new RequestHandlerRouter([
-            new ProducerController($mercure),
+            new PublishController($mercure),
             new SubscribeController($mercure),
             new NotFoundController(),
         ]);

@@ -25,7 +25,7 @@ use Symfony\Component\Uid\Uuid;
 use function Amp\call;
 use function Amp\Http\Server\FormParser\parseForm;
 
-class ProducerController implements ControllerInterface
+class PublishController implements ControllerInterface
 {
     public function __construct(
         private Hub $mercure,

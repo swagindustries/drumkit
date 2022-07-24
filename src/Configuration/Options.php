@@ -15,6 +15,7 @@ namespace SwagIndustries\MercureRouter\Configuration;
 use Psr\Log\LoggerInterface;
 use SwagIndustries\MercureRouter\Exception\WrongOptionException;
 use SwagIndustries\MercureRouter\Mercure\Hub;
+use SwagIndustries\MercureRouter\Security\Signer;
 use SwagIndustries\MercureRouter\Mercure\Store\InMemoryEventStore;
 use SwagIndustries\MercureRouter\RequestHandlers\DevRequestHandlerRouterFactory;
 use SwagIndustries\MercureRouter\RequestHandlers\RequestHandlerRouter;
@@ -23,36 +24,51 @@ use SwagIndustries\MercureRouter\RequestHandlers\RequestHandlerRouterFactoryInte
 
 class Options
 {
-    private string $certificate;
-    private string $key;
+    private const DEFAULT_SECURITY_KEY = '!ChangeMe!';
+    private const DEFAULT_SECURITY_ALG = Signer::SHA_256;
 
+    // Debug mode
+    private bool $devMode;
+
+    // HTTP config
     private int $tlsPort;
     private int $unsecuredPort;
     private array $hosts;
-    private bool $devMode;
+
+    // SSL configuration
+    private string $certificate;
+    private string $key;
+
+    // Security config
+    private SecurityOptions $subscriberSecurity;
+    private SecurityOptions $publisherSecurity;
 
     private ?RequestHandlerRouterFactoryInterface $requestHandlerRouterFactory;
 
     private LoggerInterface $logger;
 
     public function __construct(
-        string $certificateFile,
-        string $keyFile,
+        string $sslCertificateFile,
+        string $sslKeyFile,
         int $tlsPort = 443,
         int $unsecuredPort = 80,
         array $hosts = ['[::]', '0.0.0.0'], // open by default to the external network
         bool $devMode = false,
         LoggerInterface $logger = null,
         RequestHandlerRouterFactoryInterface $requestHandlerRouterFactory = null,
+        SecurityOptions $subscriberSecurity = null,
+        SecurityOptions $publisherSecurity = null,
     ) {
-        $this->setCertificate($certificateFile);
-        $this->setKey($keyFile);
+        $this->setCertificate($sslCertificateFile);
+        $this->setKey($sslKeyFile);
         $this->tlsPort = $tlsPort;
         $this->unsecuredPort = $unsecuredPort;
         $this->hosts = $hosts;
         $this->devMode = $devMode;
         $this->logger = $logger ?? DefaultLoggerFactory::createDefaultLogger();
         $this->requestHandlerRouterFactory = $requestHandlerRouterFactory;
+        $this->subscriberSecurity = $subscriberSecurity ?? new SecurityOptions(self::DEFAULT_SECURITY_KEY, self::DEFAULT_SECURITY_ALG);
+        $this->publisherSecurity = $publisherSecurity ?? new SecurityOptions(self::DEFAULT_SECURITY_KEY, self::DEFAULT_SECURITY_ALG);
     }
 
     public function certificate(): string
@@ -91,12 +107,22 @@ class Options
         return $this->getRequestHandlerRouterFactory()->createRequestHandlerRouter($hub);
     }
 
+    public function subscriberSecurity(): SecurityOptions
+    {
+        return $this->subscriberSecurity;
+    }
+
+    public function publisherSecurity(): SecurityOptions
+    {
+        return $this->publisherSecurity;
+    }
+
     public function logger(): LoggerInterface
     {
         return $this->logger;
     }
 
-    private function setKey(string $key)
+    private function setKey(string $key): void
     {
         if (!file_exists($key)) {
             throw new WrongOptionException("Cannot found certificate file '$key'");
@@ -105,7 +131,7 @@ class Options
         $this->key = $key;
     }
 
-    private function setCertificate(string $certificate)
+    private function setCertificate(string $certificate): void
     {
         if (!file_exists($certificate)) {
             throw new WrongOptionException("Cannot found certificate file '$certificate'");

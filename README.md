@@ -1,3 +1,7 @@
+Drumkit
+=======
+
+Mercure hub, in PHP.
 
 Prepare dev environment
 -----------------------
@@ -47,3 +51,10 @@ But you can expect no behavior change in minor version, including:
 
 This project follows [semver](https://semver.org/) and so we may break any of the previous statement on major version
 learn more in the CHANGELOG.md file provided as well.
+
+TODO
+----
+
+- Switch to amphp router
+- Use new amphp version (with fibers)
+- Complete support for authentication
