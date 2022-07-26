@@ -176,8 +176,8 @@ foo</pre>
         <hr>
         <p>Coded with ❤️ by the team of Swag Industries.</p>
     </footer>
-    <!-- SECTION SETTINGS -->
 
+    <!-- SECTION SETTINGS -->
     <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
@@ -208,6 +208,13 @@ foo</pre>
                         </div>
                         <div class="row">
                             <div class="col">
+                                <label for="jwt-key">Private key</label>
+                                <input id="jwt-key" class="form-control" value="!ChangeMe!" />
+                                <p><small><code>!ChangeMe!</code> is the default configuration key</small></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
                                 <label for="authorized-topics">Topics authorized</label>
                                 <textarea id="authorized-topics" class="form-control">https://example.com/my-private-topic</textarea>
                             </div>
@@ -222,7 +229,6 @@ foo</pre>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="save-settings">Save changes</button>
                 </div>
             </div>
         </div>
@@ -338,23 +344,35 @@ foo</pre>
         }
 
         function bindSettings() {
-            const button = document.getElementById('save-settings');
-            button.addEventListener('click', function (e) {
-                e.preventDefault();
-
-                saveSetting();
+            const inputKey = document.getElementById('jwt-key');
+            inputKey.addEventListener('blur', function(e) {
+                makeJwt();
             });
         }
 
-        function saveSetting() {
-            // TODO
-        }
+        async function makeJwt() {
+            const inputKey = document.getElementById('jwt-key');
+            const inputJwt = document.getElementById('jwt');
+            const encoder = new TextEncoder()
 
-        function makeJwt() {
-
+            inputJwt.value = await new jose.SignJWT({
+                'mercure': {
+                    'publish': ['*'],
+                    'subscribe': [
+                        "https://example.com/my-private-topic",
+                        "{scheme}://{+host}/demo/books/{id}.jsonld",
+                        "/.well-known/mercure/subscriptions{/topic}{/subscriber}"
+                    ],
+                    'payload': {
+                        "user": "https://example.com/users/dunglas",
+                        "remoteAddr": "127.0.0.1"
+                    }
+                }
+            }).setProtectedHeader({ alg: 'HS256' }).sign(encoder.encode(inputKey.value));
         }
 
         (function () {
+            makeJwt();
             bindSubscribe();
             bindPublish();
             bindSettings();
