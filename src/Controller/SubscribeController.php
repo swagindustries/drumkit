@@ -13,6 +13,7 @@ namespace SwagIndustries\MercureRouter\Controller;
 use Amp\ByteStream\IteratorStream;
 use Amp\Emitter;
 use Amp\Http\Server\Request;
+use Amp\Http\Server\RequestHandler;
 use Amp\Http\Server\Response;
 use Amp\Http\Status;
 use Amp\Producer;
@@ -22,19 +23,11 @@ use SwagIndustries\MercureRouter\Mercure\Hub;
 use SwagIndustries\MercureRouter\Mercure\Subscriber;
 use function Amp\call;
 
-class SubscribeController implements ControllerInterface
+class SubscribeController implements RequestHandler
 {
-    public function __construct(
-        private Hub $mercure,
-        private string $mercurePath = Hub::MERCURE_PATH,
-    ) {}
+    public function __construct(private Hub $mercure) {}
 
-    public function support(Request $request): bool
-    {
-        return $request->getUri()->getPath() === $this->mercurePath && $request->getMethod() === 'GET';
-    }
-
-    public function resolve(Request $request): Promise
+    public function handleRequest(Request $request): Promise
     {
         /** @var array{topic?: array|string} $query */
         $query = QueryParser::parse($request->getUri()->getQuery());

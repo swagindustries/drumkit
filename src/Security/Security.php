@@ -19,6 +19,7 @@ use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use SwagIndustries\MercureRouter\Configuration\Options;
 use SwagIndustries\MercureRouter\Configuration\SecurityOptions;
+use SwagIndustries\MercureRouter\Exception\BearerNotFoundException;
 use SwagIndustries\MercureRouter\Security\Extractor\AuthorizationExtractorInterface;
 
 class Security
@@ -26,7 +27,7 @@ class Security
     public function __construct(
         private Options $options,
         private AuthorizationExtractorInterface $extractor,
-        private Configuration $config
+        private Factory $configFactory
     ) { }
 
     public function validateSubscribeRequest(Request $request): bool
@@ -36,12 +37,16 @@ class Security
 
     public function validatePublishRequest(Request $request): bool
     {
-        return $this->validateRequest($request, $this->options->subscriberSecurity());
+        return $this->validateRequest($request, $this->options->publisherSecurity());
     }
 
     private function validateRequest(Request $request, SecurityOptions $options): bool
     {
         $token = $this->extractor->extract($request);
+        if (null === $token) {
+            throw new BearerNotFoundException();
+        }
+        $config = $this->configFactory->createJwtConfigurationFromMercureOptions($options);
         $token = $this->config->parser()->parse($token);
 
         return $this->config->validator()->validate(

@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace SwagIndustries\MercureRouter\Controller\Dev;
 
 use Amp\Http\Server\Request;
+use Amp\Http\Server\RequestHandler;
 use Amp\Http\Server\Response;
 use Amp\Http\Status;
 use Amp\Promise;
@@ -20,14 +21,9 @@ use Amp\Success;
 use SwagIndustries\MercureRouter\Controller\ControllerInterface;
 use SwagIndustries\MercureRouter\Mercure\Hub;
 
-class RedirectToDebuggerController implements ControllerInterface
+class RedirectToDebuggerController implements RequestHandler
 {
-    public function support(Request $request): bool
-    {
-        return $request->getUri()->getPath() === '/' && $request->getMethod() === 'GET';
-    }
-
-    public function resolve(Request $request): Promise
+    public function handleRequest(Request $request): Promise
     {
         return new Success(new Response(Status::TEMPORARY_REDIRECT, [
             'location' => RenderDebuggerController::URL

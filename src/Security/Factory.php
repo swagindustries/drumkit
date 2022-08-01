@@ -12,7 +12,6 @@
 declare(strict_types=1);
 namespace SwagIndustries\MercureRouter\Security;
 
-use Amp\Http\Server\Request;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use SwagIndustries\MercureRouter\Configuration\SecurityOptions;
@@ -20,15 +19,11 @@ use SwagIndustries\MercureRouter\Configuration\SecurityOptions;
 
 class Factory
 {
-    public function __construct(private SecurityOptions $options)
-    {
-    }
-
-    public function createJwtConfigurationFromMercureOptions()
+    public function createJwtConfigurationFromMercureOptions(SecurityOptions $options)
     {
         return Configuration::forSymmetricSigner(
-            $this->options->getSigner()->signer(),
-            InMemory::plainText($this->options->getKey())
+            $options->getSigner()->signer(),
+            InMemory::plainText($options->getKey())
         );
     }
 }

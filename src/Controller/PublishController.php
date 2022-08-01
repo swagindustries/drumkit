@@ -15,6 +15,7 @@ namespace SwagIndustries\MercureRouter\Controller;
 use Amp\Http\Server\FormParser\BufferingParser;
 use Amp\Http\Server\FormParser\Form;
 use Amp\Http\Server\Request;
+use Amp\Http\Server\RequestHandler;
 use Amp\Http\Server\Response;
 use Amp\Http\Status;
 use Amp\Promise;
@@ -25,20 +26,14 @@ use Symfony\Component\Uid\Uuid;
 use function Amp\call;
 use function Amp\Http\Server\FormParser\parseForm;
 
-class PublishController implements ControllerInterface
+class PublishController implements RequestHandler
 {
     public function __construct(
         private Hub $mercure,
         private ResponseMode $mode = ResponseMode::NORMAL,
-        private string $mercurePath = Hub::MERCURE_PATH,
     ) {}
 
-    public function support(Request $request): bool
-    {
-        return $request->getUri()->getPath() === $this->mercurePath && $request->getMethod() === 'POST';
-    }
-
-    public function resolve(Request $request): Promise
+    public function handleRequest(Request $request): Promise
     {
         // Validation of the publication
         // see https://mercure.rocks/spec#publication

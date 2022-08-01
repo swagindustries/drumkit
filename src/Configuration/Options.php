@@ -12,9 +12,18 @@ declare(strict_types=1);
 
 namespace SwagIndustries\MercureRouter\Configuration;
 
+use Amp\Http\Server\Router;
 use Psr\Log\LoggerInterface;
 use SwagIndustries\MercureRouter\Exception\WrongOptionException;
+use SwagIndustries\MercureRouter\Http\Router\DevRouterFactory;
+use SwagIndustries\MercureRouter\Http\Router\RouterFactory;
 use SwagIndustries\MercureRouter\Mercure\Hub;
+use SwagIndustries\MercureRouter\Security\Extractor\AuthorizationExtractorInterface;
+use SwagIndustries\MercureRouter\Security\Extractor\AuthorizationHeaderExtractor;
+use SwagIndustries\MercureRouter\Security\Extractor\ChainExtractor;
+use SwagIndustries\MercureRouter\Security\Extractor\CookieExtractor;
+use SwagIndustries\MercureRouter\Security\Factory;
+use SwagIndustries\MercureRouter\Security\Security;
 use SwagIndustries\MercureRouter\Security\Signer;
 use SwagIndustries\MercureRouter\Mercure\Store\InMemoryEventStore;
 use SwagIndustries\MercureRouter\RequestHandlers\DevRequestHandlerRouterFactory;
@@ -43,7 +52,10 @@ class Options
     private SecurityOptions $subscriberSecurity;
     private SecurityOptions $publisherSecurity;
 
-    private ?RequestHandlerRouterFactoryInterface $requestHandlerRouterFactory;
+    // No dependency injection in this project
+    // so dependencies are managed here
+    private ?RouterFactory $requestHandlerRouterFactory;
+    private ?Security $security;
 
     private LoggerInterface $logger;
 
@@ -55,7 +67,7 @@ class Options
         array $hosts = ['[::]', '0.0.0.0'], // open by default to the external network
         bool $devMode = false,
         LoggerInterface $logger = null,
-        RequestHandlerRouterFactoryInterface $requestHandlerRouterFactory = null,
+        RouterFactory $requestHandlerRouterFactory = null,
         SecurityOptions $subscriberSecurity = null,
         SecurityOptions $publisherSecurity = null,
     ) {
@@ -69,6 +81,7 @@ class Options
         $this->requestHandlerRouterFactory = $requestHandlerRouterFactory;
         $this->subscriberSecurity = $subscriberSecurity ?? new SecurityOptions(self::DEFAULT_SECURITY_KEY, self::DEFAULT_SECURITY_ALG);
         $this->publisherSecurity = $publisherSecurity ?? new SecurityOptions(self::DEFAULT_SECURITY_KEY, self::DEFAULT_SECURITY_ALG);
+        $this->security = null;
     }
 
     public function certificate(): string
@@ -101,10 +114,10 @@ class Options
         return $this->unsecuredPort;
     }
 
-    public function requestHandlerRouter(): RequestHandlerRouter
+    public function requestHandlerRouter(): Router
     {
         $hub = new Hub(new InMemoryEventStore());
-        return $this->getRequestHandlerRouterFactory()->createRequestHandlerRouter($hub);
+        return $this->getRequestHandlerRouterFactory()->createRouter($hub, $this->getSecurity());
     }
 
     public function subscriberSecurity(): SecurityOptions
@@ -140,16 +153,33 @@ class Options
         $this->certificate = $certificate;
     }
 
-    private function getRequestHandlerRouterFactory(): RequestHandlerRouterFactoryInterface
+    private function getRequestHandlerRouterFactory(): RouterFactory
     {
         if ($this->requestHandlerRouterFactory !== null) {
             return $this->requestHandlerRouterFactory;
         }
 
         if ($this->devMode) {
-            return $this->requestHandlerRouterFactory = new DevRequestHandlerRouterFactory();
+            return $this->requestHandlerRouterFactory = new DevRouterFactory();
         }
 
-        return $this->requestHandlerRouterFactory = new RequestHandlerRouterFactory();
+        return $this->requestHandlerRouterFactory = new RouterFactory();
+    }
+
+    private function getAuthorizationExtractor(): AuthorizationExtractorInterface
+    {
+        return new ChainExtractor([
+            new AuthorizationHeaderExtractor(),
+            new CookieExtractor()
+        ]);
+    }
+
+    private function getSecurity()
+    {
+        if ($this->security !== null) {
+            return $this->security;
+        }
+
+        return $this->security = new Security($this, $this->getAuthorizationExtractor(), new Factory());
     }
 }

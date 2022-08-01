@@ -13,20 +13,15 @@ declare(strict_types=1);
 namespace SwagIndustries\MercureRouter\Controller;
 
 use Amp\Http\Server\Request;
+use Amp\Http\Server\RequestHandler;
 use Amp\Http\Server\Response;
 use Amp\Http\Status;
 use Amp\Promise;
-use SwagIndustries\MercureRouter\Mercure\MimeTypeFileExtensionResolver;
 use function Amp\call;
 
-final class NotFoundController implements ControllerInterface
+final class NotFoundController implements RequestHandler
 {
-    public function support(Request $request): bool
-    {
-        return true;
-    }
-
-    public function resolve(Request $request): Promise
+    public function handleRequest(Request $request): Promise
     {
         return call(function () {
             return new Response(
@@ -35,5 +30,10 @@ final class NotFoundController implements ControllerInterface
                 '404 Not found'
             );
         });
+    }
+
+    public function support(Request $request): bool
+    {
+        return true;
     }
 }
