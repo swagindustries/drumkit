@@ -3,6 +3,14 @@ Drumkit
 
 Mercure hub, in PHP.
 
+Work in progress
+----------------
+
+This project is currently a work in progress, here is a list of the rest to be done:
+- Docker image
+- Upgrade to the next version of amphp (PHP 8.1+)
+- Fix all TODO remaining in the code
+
 Prepare dev environment
 -----------------------
 
