@@ -236,8 +236,10 @@ foo</pre>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jose@4.8.1/dist/browser/index.js" type="module"></script>
+    <script src="https://cdn.jsdelivr.net/npm/event-source-polyfill/src/eventsource.min.js"></script>
     <script type="module">
         import * as jose from "https://cdn.jsdelivr.net/npm/jose@4.8.1/dist/browser/index.js";
+        import 'https://cdn.jsdelivr.net/npm/event-source-polyfill/src/eventsource.min.js';
 
         const settings = {
             bearer: null,  // JWT generated
@@ -257,7 +259,15 @@ foo</pre>
             if (eventSource !== null) {
                 unsubscribe();
             }
-            eventSource = new EventSource(url);
+            if (settings.authType !== 'http') {
+                eventSource = new EventSource(url);
+            } else {
+                eventSource = new EventSourcePolyfill(url, {
+                    headers: {
+                        Authorization: `Bearer ${settings.bearer}`,
+                    },
+                });
+            }
             eventSource.onmessage = function(event) {
                 console.debug('[EventSource]', event);
                 topicList.innerHTML += eventTemplate.replace('{content}', event.data);
@@ -317,6 +327,9 @@ foo</pre>
             }
 
             try {
+                if (settings.authType === 'http') {
+                    options.headers = { Authorization: `Bearer ${settings.bearer}` };
+                }
                 const result = await fetch(settings.hubUrl, options);
                 if (!result.ok) {
                     console.error('An error occurred while publishing an event');
@@ -353,9 +366,9 @@ foo</pre>
         async function makeJwt() {
             const inputKey = document.getElementById('jwt-key');
             const inputJwt = document.getElementById('jwt');
-            const encoder = new TextEncoder()
+            const encoder = new TextEncoder();
 
-            inputJwt.value = await new jose.SignJWT({
+            const jwt = await new jose.SignJWT({
                 'mercure': {
                     'publish': ['*'],
                     'subscribe': [
@@ -369,6 +382,9 @@ foo</pre>
                     }
                 }
             }).setProtectedHeader({ alg: 'HS256' }).sign(encoder.encode(inputKey.value));
+
+            inputJwt.value = jwt;
+            settings.bearer = jwt;
         }
 
         (function () {
