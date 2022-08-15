@@ -47,13 +47,13 @@ class Security
             throw new BearerNotFoundException();
         }
         $config = $this->configFactory->createJwtConfigurationFromMercureOptions($options);
-        $token = $this->config->parser()->parse($token);
+        $token = $config->parser()->parse($token);
 
-        return $this->config->validator()->validate(
+        return $config->validator()->validate(
             $token,
-            new SignedWith($this->config->signer(), InMemory::plainText($options->getKey())),
+            new SignedWith($config->signer(), InMemory::plainText($options->getKey())),
             new LooseValidAt(new SystemClock(
-                new DateTimeZone(\ini_get('date.timezone') ?: 'UTC')
+                new \DateTimeZone(\ini_get('date.timezone') ?: 'UTC')
             ))
         );
     }
