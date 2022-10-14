@@ -25,13 +25,11 @@ class Subscriber
     /** @var Update[] */
     private array $messages;
 
-    private $connection;
-
     public function __construct(array $topics, array $privateTopics = [])
     {
         $this->emitter = new Emitter();
-        $this->topics = [];
-        $this->privateTopics = [];
+        $this->topics = $topics;
+        $this->privateTopics = $privateTopics;
         $this->messages = [];
     }
 

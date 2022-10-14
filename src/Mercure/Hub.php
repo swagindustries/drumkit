@@ -19,7 +19,7 @@ class Hub
     public const MERCURE_PATH = '/.well-known/mercure';
 
     /** @var Subscriber[] */
-    private array $subscribers;
+    private array $subscribers; // @todo: perf opti: using another thing than php array
     private Privacy $privacy;
 
     public function __construct(private EventStoreInterface $store, Privacy $privacy = null)

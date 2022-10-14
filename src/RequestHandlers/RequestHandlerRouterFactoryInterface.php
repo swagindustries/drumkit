@@ -12,9 +12,11 @@ declare(strict_types=1);
 
 namespace SwagIndustries\MercureRouter\RequestHandlers;
 
+use Psr\Log\LoggerInterface;
 use SwagIndustries\MercureRouter\Mercure\Hub;
 
 interface RequestHandlerRouterFactoryInterface
 {
+    public function __construct(LoggerInterface $logger);
     public function createRequestHandlerRouter(Hub $mercure): RequestHandlerRouter;
 }

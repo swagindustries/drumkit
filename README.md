@@ -39,9 +39,9 @@ MERCURE_SUBSCRIBER_JWT_KEY='!ChangeMe!' \
 
 ```
 docker run \
-    -e MERCURE_PUBLISHER_JWT_KEY='!ChangeMe!' \
-    -e MERCURE_SUBSCRIBER_JWT_KEY='!ChangeMe!' \
-    -p 80:80 \
+    -e MERCURE_PUBLISHER_JWT_KEY='!ChangeThisMercureHubJWTSecretKey!' \                                               
+    -e MERCURE_SUBSCRIBER_JWT_KEY='!ChangeThisMercureHubJWTSecretKey!' \              
+    -p 80:80 \                                                
     -p 443:443 \
     dunglas/mercure caddy run -config /etc/caddy/Caddyfile.dev
 ```

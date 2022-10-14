@@ -20,6 +20,8 @@ use Amp\Http\Server\Response;
 use Amp\Http\Status;
 use Amp\Promise;
 use Amp\Success;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use SwagIndustries\MercureRouter\Mercure\Hub;
 use SwagIndustries\MercureRouter\Mercure\Update;
 use Symfony\Component\Uid\Uuid;
@@ -31,6 +33,7 @@ class PublishController implements RequestHandler
     public function __construct(
         private Hub $mercure,
         private ResponseMode $mode = ResponseMode::NORMAL,
+        private LoggerInterface $logger = new NullLogger(),
     ) {}
 
     public function handleRequest(Request $request): Promise
@@ -75,6 +78,8 @@ class PublishController implements RequestHandler
                 retry: $retry
             );
 
+            $topics = implode(', ', $update->topics);
+            $this->logger->debug("publish data '{$update->data}' to topics {$topics}");
             yield $this->mercure->publish($update);
 
             return new Response(Status::OK, [

@@ -26,14 +26,10 @@ use SwagIndustries\MercureRouter\Security\Factory;
 use SwagIndustries\MercureRouter\Security\Security;
 use SwagIndustries\MercureRouter\Security\Signer;
 use SwagIndustries\MercureRouter\Mercure\Store\InMemoryEventStore;
-use SwagIndustries\MercureRouter\RequestHandlers\DevRequestHandlerRouterFactory;
-use SwagIndustries\MercureRouter\RequestHandlers\RequestHandlerRouter;
-use SwagIndustries\MercureRouter\RequestHandlers\RequestHandlerRouterFactory;
-use SwagIndustries\MercureRouter\RequestHandlers\RequestHandlerRouterFactoryInterface;
 
 class Options
 {
-    private const DEFAULT_SECURITY_KEY = '!ChangeMe!';
+    private const DEFAULT_SECURITY_KEY = '!ChangeThisMercureHubJWTSecretKey!';
     private const DEFAULT_SECURITY_ALG = Signer::SHA_256;
 
     // Debug mode
@@ -160,10 +156,10 @@ class Options
         }
 
         if ($this->devMode) {
-            return $this->requestHandlerRouterFactory = new DevRouterFactory();
+            return $this->requestHandlerRouterFactory = new DevRouterFactory($this->logger);
         }
 
-        return $this->requestHandlerRouterFactory = new RouterFactory();
+        return $this->requestHandlerRouterFactory = new RouterFactory($this->logger);
     }
 
     private function getAuthorizationExtractor(): AuthorizationExtractorInterface

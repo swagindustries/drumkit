@@ -12,6 +12,12 @@
             background: #ededed;
             color: black;
         }
+        .list-group pre {
+            margin: 0;
+        }
+        .list-group {
+            max-height: 200px;
+        }
         #mercure-logo {
             width: 300px;
         }
@@ -79,7 +85,8 @@
                     <span class="spinner-grow spinner-grow-sm visually-hidden" role="status" aria-hidden="true"></span>
                     <span>Subscribe</span>
                 </button>
-                <ul class="list-group" data-template="<li class=&quot;list-group-item&quot;>{content}</li>">
+                <hr>
+                <ul class="list-group" id="event-list" data-template="<li class=&quot;list-group-item&quot;>{content}</li>">
                 </ul>
                 <hr>
 
@@ -195,13 +202,13 @@ foo</pre>
                         <div class="row">
                             <div class="col">
                                 <div class="form-check">
-                                    <input type="radio" class="form-check-input" id="auth-type-cookie" name="auth-type" value="header-cookie">
+                                    <input type="radio" class="auth-type-check" id="auth-type-cookie" name="auth-type" value="cookie">
                                     <label class="form-check-label" for="auth-type-cookie"><code>mercureAuthorization</code> cookie</label>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="form-check">
-                                    <input type="radio" class="form-check-input" id="auth-type-auth" name="auth-type" value="header-auth" checked>
+                                    <input type="radio" class="auth-type-check" id="auth-type-auth" name="auth-type" value="http" checked>
                                     <label class="form-check-label" for="auth-type-auth"><code>Authorization</code> HTTP Header</label>
                                 </div>
                             </div>
@@ -209,8 +216,8 @@ foo</pre>
                         <div class="row">
                             <div class="col">
                                 <label for="jwt-key">Private key</label>
-                                <input id="jwt-key" class="form-control" value="!ChangeMe!" />
-                                <p><small><code>!ChangeMe!</code> is the default configuration key</small></p>
+                                <input id="jwt-key" class="form-control" value="!ChangeThisMercureHubJWTSecretKey!" />
+                                <p><small><code>!ChangeThisMercureHubJWTSecretKey!</code> is the default configuration key</small></p>
                             </div>
                         </div>
                         <div class="row">
@@ -237,9 +244,11 @@ foo</pre>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jose@4.8.1/dist/browser/index.js" type="module"></script>
     <script src="https://cdn.jsdelivr.net/npm/event-source-polyfill/src/eventsource.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.mjs" type="module"></script>
     <script type="module">
         import * as jose from "https://cdn.jsdelivr.net/npm/jose@4.8.1/dist/browser/index.js";
         import 'https://cdn.jsdelivr.net/npm/event-source-polyfill/src/eventsource.min.js';
+        import Cookies from 'https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.mjs';
 
         const settings = {
             bearer: null,  // JWT generated
@@ -249,7 +258,7 @@ foo</pre>
         let eventSource = null;
 
         function subscribe () {
-            const eventContainer = document.querySelector('.list-group');
+            const eventContainer = document.getElementById('event-list');
             const eventTemplate = eventContainer.dataset.template;
 
             const topicList = document.getElementById('subscribe-topic-list').value.split('\n');
@@ -260,6 +269,11 @@ foo</pre>
                 unsubscribe();
             }
             if (settings.authType !== 'http') {
+                // Side note: this is not the best way to set the cookie
+                // it's just here for example
+                // see: https://mercure.rocks/spec#cookie
+                Cookies.set('mercureAuthorization', settings.bearer);
+
                 eventSource = new EventSource(url);
             } else {
                 eventSource = new EventSourcePolyfill(url, {
@@ -270,7 +284,7 @@ foo</pre>
             }
             eventSource.onmessage = function(event) {
                 console.debug('[EventSource]', event);
-                topicList.innerHTML += eventTemplate.replace('{content}', event.data);
+                eventContainer.innerHTML += eventTemplate.replace('{content}', '<pre>'+JSON.stringify(JSON.parse(event.data), null, 2)+'</pre>');
             };
             console.debug('started event source', url);
         }
@@ -329,6 +343,11 @@ foo</pre>
             try {
                 if (settings.authType === 'http') {
                     options.headers = { Authorization: `Bearer ${settings.bearer}` };
+                } else {
+                    // Side note: this is not the best way to set the cookie
+                    // it's just here for example
+                    // see: https://mercure.rocks/spec#cookie
+                    Cookies.set('mercureAuthorization', settings.bearer);
                 }
                 const result = await fetch(settings.hubUrl, options);
                 if (!result.ok) {
@@ -361,6 +380,11 @@ foo</pre>
             inputKey.addEventListener('blur', function(e) {
                 makeJwt();
             });
+            document.querySelectorAll('.auth-type-check').forEach(function(input) {
+                input.addEventListener('click', function(e) {
+                    settings.authType = e.target.value;
+                })
+            })
         }
 
         async function makeJwt() {

@@ -14,9 +14,13 @@ namespace SwagIndustries\MercureRouter\Security;
 use Amp\Http\Server\Request;
 use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\JwtFacade;
 use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\SodiumBase64Polyfill;
+use Lcobucci\JWT\Validation\Constraint\IssuedBy;
 use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
+use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use SwagIndustries\MercureRouter\Configuration\Options;
 use SwagIndustries\MercureRouter\Configuration\SecurityOptions;
 use SwagIndustries\MercureRouter\Exception\BearerNotFoundException;
@@ -47,6 +51,7 @@ class Security
             throw new BearerNotFoundException();
         }
         $config = $this->configFactory->createJwtConfigurationFromMercureOptions($options);
+
         $token = $config->parser()->parse($token);
 
         return $config->validator()->validate(

@@ -37,6 +37,11 @@ class Server
 
             $connections = iterator_to_array($this->generateConnections($this->options, $tlsContext));
 
+            $options = new \Amp\Http\Server\Options();
+            if ($this->options->isDevMode()) {
+                $options = $options->withDebugMode();
+            }
+
             $httpServer = new HttpServer($connections, stack(
                 $this->options->requestHandlerRouter(),
 
@@ -48,7 +53,7 @@ class Server
                     minimumLength: 12,
                     chunkSize: 1,
                 )
-            ), $logger);
+            ), $logger, $options);
 
             yield $httpServer->start();
 

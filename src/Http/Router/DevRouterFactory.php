@@ -22,6 +22,7 @@ final class DevRouterFactory extends RouterFactory
 {
     public function createRouter(Hub $mercure, Security $security): Router
     {
+        $this->verbose = true;
         $router = parent::createRouter($mercure, $security);
 
         $router->addRoute('GET', '/', new RedirectToDebuggerController());
