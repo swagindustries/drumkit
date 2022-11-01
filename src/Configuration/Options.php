@@ -39,6 +39,7 @@ class Options
     private int $tlsPort;
     private int $unsecuredPort;
     private array $hosts;
+    private int $writeTimeout; // Timeout in seconds, default to 10min
 
     // SSL configuration
     private string $certificate;
@@ -61,6 +62,7 @@ class Options
         int $tlsPort = 443,
         int $unsecuredPort = 80,
         array $hosts = ['[::]', '0.0.0.0'], // open by default to the external network
+        int $writeTimeout = 600,
         bool $devMode = false,
         LoggerInterface $logger = null,
         RouterFactory $requestHandlerRouterFactory = null,
@@ -72,6 +74,7 @@ class Options
         $this->tlsPort = $tlsPort;
         $this->unsecuredPort = $unsecuredPort;
         $this->hosts = $hosts;
+        $this->writeTimeout = $writeTimeout;
         $this->devMode = $devMode;
         $this->logger = $logger ?? DefaultLoggerFactory::createDefaultLogger();
         $this->requestHandlerRouterFactory = $requestHandlerRouterFactory;
@@ -108,6 +111,11 @@ class Options
     public function unsecuredPort(): int
     {
         return $this->unsecuredPort;
+    }
+
+    public function writeTimeout(): int
+    {
+        return $this->writeTimeout;
     }
 
     public function requestHandlerRouter(): Router

@@ -10,6 +10,7 @@
 
 namespace SwagIndustries\MercureRouter\Mercure;
 
+use Amp\Loop;
 use Amp\Promise;
 use SwagIndustries\MercureRouter\Mercure\Store\EventStoreInterface;
 use function Amp\call;
@@ -34,7 +35,9 @@ class Hub
             foreach ($this->subscribers as $subscriber) {
                 yield $this->store->store($update);
                 if ($this->privacy->subscriberCanReceive($subscriber, $update)) {
-                    yield $subscriber->dispatch($update);
+                    Loop::defer(function () use ($subscriber, $update) {
+                        yield $subscriber->dispatch($update);
+                    });
                 }
             }
         });

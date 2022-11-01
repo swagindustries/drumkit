@@ -42,6 +42,8 @@ class Server
                 $options = $options->withDebugMode();
             }
 
+            $options = $options->withHttp2Timeout($this->options->writeTimeout());
+
             $httpServer = new HttpServer($connections, stack(
                 $this->options->requestHandlerRouter(),
 

@@ -41,6 +41,10 @@ class SubscribeController implements RequestHandler
 
         $this->mercure->addSubscriber($subscriber);
 
+        $request->getClient()->onClose(function () use ($subscriber) {
+            $this->mercure->removeSubscriber($subscriber);
+        });
+
         return call(function () use ($subscriber) {
             return new Response(Status::OK,
                 [

@@ -15,11 +15,22 @@
         .list-group pre {
             margin: 0;
         }
+        /*
         .list-group {
             max-height: 200px;
         }
+         */
         #mercure-logo {
             width: 300px;
+        }
+        #event-list i {
+            font-size: 0.7rem;
+            text-align: right;
+            display: block;
+        }
+        #event-list {
+            max-height: 350px;
+            overflow: scroll;
         }
         header {
             text-align: center;
@@ -86,7 +97,7 @@
                     <span>Subscribe</span>
                 </button>
                 <hr>
-                <ul class="list-group" id="event-list" data-template="<li class=&quot;list-group-item&quot;>{content}</li>">
+                <ul class="list-group" id="event-list" data-template="<li class=&quot;list-group-item&quot;>{content}<i>at {date}</i></li>">
                 </ul>
                 <hr>
 
@@ -257,6 +268,11 @@ foo</pre>
         };
         let eventSource = null;
 
+        function updateScroll(){
+            var element = document.getElementById("event-list");
+            element.scrollTop = element.scrollHeight;
+        }
+
         function subscribe () {
             const eventContainer = document.getElementById('event-list');
             const eventTemplate = eventContainer.dataset.template;
@@ -284,7 +300,14 @@ foo</pre>
             }
             eventSource.onmessage = function(event) {
                 console.debug('[EventSource]', event);
-                eventContainer.innerHTML += eventTemplate.replace('{content}', '<pre>'+JSON.stringify(JSON.parse(event.data), null, 2)+'</pre>');
+                let date = new Date();
+                let hours = String(date.getMinutes()).padStart(2, '0');
+                let minutes = String(date.getHours()).padStart(2, '0');
+                let seconds = String(date.getSeconds()).padStart(2, '0');
+                eventContainer.innerHTML += eventTemplate
+                    .replace('{content}', '<pre>'+JSON.stringify(JSON.parse(event.data), null, 2)+'</pre>')
+                    .replace('{date}', hours + ':' + minutes + ':' + seconds);
+                updateScroll();
             };
             console.debug('started event source', url);
         }
