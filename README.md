@@ -7,9 +7,18 @@ Work in progress
 ----------------
 
 This project is currently a work in progress, here is a list of the rest to be done:
-- Docker image
-- Upgrade to the next version of amphp (PHP 8.1+)
-- Fix all TODO remaining in the code
+
+- [ ] Active subscriptions events
+- [ ] Security: JWS verifications (on all endpoints)
+- [ ] Security: CORS configuration (on all endpoints)
+- [ ] Configuration by file
+- [ ] Test suite
+- [ ] Docker image
+- [ ] Benchmark
+- [ ] Use new amphp version (with fibers)
+- [ ] Header `Last-Event-ID` https://mercure.rocks/spec#reconciliation
+- [ ] Redact help modal in UI
+- [ ] Fix all TODO remaining in the code
 
 Prepare dev environment
 -----------------------
@@ -59,17 +68,3 @@ But you can expect no behavior change in minor version, including:
 
 This project follows [semver](https://semver.org/) and so we may break any of the previous statement on major version
 learn more in the CHANGELOG.md file provided as well.
-
-TODO
-----
-
-- [ ] Active subscriptions events
-- [ ] Security: JWS verifications (on all endpoints)
-- [ ] Security: CORS configuration (on all endpoints)
-- [ ] Configuration by file
-- [ ] Test suite
-- [ ] Docker
-- [ ] Benchmark
-- [ ] Use new amphp version (with fibers)
-- [ ] Header `Last-Event-ID` https://mercure.rocks/spec#reconciliation
-- [ ] Redact help modal in UI
