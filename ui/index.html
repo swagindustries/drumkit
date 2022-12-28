@@ -42,6 +42,19 @@
         footer {
             text-align: center;
         }
+
+        #active-subscription-list .details {
+            font-size: 0.85rem;
+        }
+        #active-subscription-list pre.details {
+            font-size: 0.7rem;
+        }
+        #active-subscription-list .text-muted {
+            font-size: 0.9rem;
+        }
+        #active-subscription-list .card {
+            margin: 10px auto;
+        }
     </style>
 </head>
 <body>
@@ -187,6 +200,10 @@ foo</pre>
             </div>
             <div class="col">
                 <h2>Active subscriptions</h2>
+                <button class="btn btn-success" id="active-subscription-button">Listen subscriptions</button>
+                <button class="btn btn-warning visually-hidden" id="stop-active-subscription-button">Stop</button>
+                <div id="active-subscription-list" data-template="&#x3C;div class=&#x22;card&#x22;&#x3E;&#x3C;div class=&#x22;card-body&#x22;&#x3E;&#x3C;h5 class=&#x22;card-title&#x22;&#x3E;Subscription&#x3C;/h5&#x3E;&#x3C;h6 class=&#x22;card-subtitle mb-2 text-muted&#x22;&#x3E;{subUrl}&#x3C;/h6&#x3E;&#x3C;/div&#x3E;&#x3C;ul class=&#x22;list-group list-group-flush&#x22;&#x3E;&#x3C;li class=&#x22;list-group-item&#x22;&#x3E;&#x3C;b&#x3E;subscriber id:&#x3C;/b&#x3E;&#x3C;br&#x3E;&#x3C;span class=&#x22;details&#x22;&#x3E;{subId}&#x3C;/span&#x3E;&#x3C;/li&#x3E;&#x3C;li class=&#x22;list-group-item&#x22;&#x3E;&#x3C;b&#x3E;topic:&#x3C;/b&#x3E;&#x3C;br&#x3E;&#x3C;span class=&#x22;details&#x22;&#x3E;{subTopic}&#x3C;/span&#x3E;&#x3C;/li&#x3E;&#x3C;li class=&#x22;list-group-item&#x22;&#x3E;&#x3C;b&#x3E;payload:&#x3C;/b&#x3E;&#x3C;br&#x3E;&#x3C;pre class=&#x22;details&#x22;&#x3E;{subPayload}&#x3C;/pre&#x3E;&#x3C;/li&#x3E;&#x3C;/ul&#x3E;&#x3C;/div&#x3E;">
+                </div>
             </div>
         </div>
     </div>
@@ -267,9 +284,10 @@ foo</pre>
             hubUrl: "https://localhost/.well-known/mercure"
         };
         let eventSource = null;
+        let subscriptionEventSource = null;
 
-        function updateScroll(){
-            var element = document.getElementById("event-list");
+        function updateScroll(elementId){
+            var element = document.getElementById(elementId || "event-list");
             element.scrollTop = element.scrollHeight;
         }
 
@@ -400,8 +418,13 @@ foo</pre>
 
         function bindSettings() {
             const inputKey = document.getElementById('jwt-key');
-            inputKey.addEventListener('blur', function(e) {
-                makeJwt();
+            inputKey.addEventListener('blur', async function(e) {
+                let jwt = await makeJwt(
+                    document.getElementById('authorized-topics').innerHTML.split('\n')
+                );
+                const inputJwt = document.getElementById('jwt');
+                inputJwt.value = jwt;
+                settings.bearer = jwt;
             });
             document.querySelectorAll('.auth-type-check').forEach(function(input) {
                 input.addEventListener('click', function(e) {
@@ -410,19 +433,14 @@ foo</pre>
             })
         }
 
-        async function makeJwt() {
+        async function makeJwt(authorizedTopics) {
             const inputKey = document.getElementById('jwt-key');
-            const inputJwt = document.getElementById('jwt');
             const encoder = new TextEncoder();
 
             const jwt = await new jose.SignJWT({
                 'mercure': {
                     'publish': ['*'],
-                    'subscribe': [
-                        "https://example.com/my-private-topic",
-                        "{scheme}://{+host}/demo/books/{id}.jsonld",
-                        "/.well-known/mercure/subscriptions{/topic}{/subscriber}"
-                    ],
+                    'subscribe': authorizedTopics,
                     'payload': {
                         "user": "https://example.com/users/dunglas",
                         "remoteAddr": "127.0.0.1"
@@ -430,8 +448,99 @@ foo</pre>
                 }
             }).setProtectedHeader({ alg: 'HS256' }).sign(encoder.encode(inputKey.value));
 
-            inputJwt.value = jwt;
-            settings.bearer = jwt;
+            return jwt;
+        }
+
+        async function subscribeActiveSubscription() {
+            const eventContainer = document.getElementById('active-subscription-list');
+            const eventTemplate = eventContainer.dataset.template;
+
+            const httpOptions = {method: 'GET'};
+            const bearer = await makeJwt(['/.well-known/mercure/subscriptions{/topic}{/subscriber}']);
+            if (settings.authType !== 'http') {
+                Cookies.set('mercureAuthorization', bearer);
+            } else {
+                httpOptions.headers = {
+                    Authorization: `Bearer ${bearer}`,
+                };
+            }
+
+            let subscriptions = await fetch(settings.hubUrl + '/subscriptions', httpOptions);
+            if (!subscriptions.ok) {
+                alert('Something went wrong in the process, is the router up?');
+                return;
+            }
+            subscriptions = await subscriptions.json();
+
+            // Feature to be added here:
+            // list subscriptions already existing at this point in the subscriptions list
+            // subscriptions.subscriptions.forEach(addSubscription);
+
+            const url = new URL(settings.hubUrl);
+            const topic = '/.well-known/mercure/subscriptions{/topic}{/subscriber}';
+            url.searchParams.append("topic", topic);
+            url.searchParams.append('lastEventID', subscriptions.lastEventID);
+
+            if (subscriptionEventSource !== null) {
+                unsubscribeActiveSubscription();
+            }
+            if (settings.authType !== 'http') {
+                // Side note: this is not the best way to set the cookie
+                // it's just here for example
+                // see: https://mercure.rocks/spec#cookie
+                Cookies.set('mercureAuthorization', bearer);
+
+                subscriptionEventSource = new EventSource(url);
+            } else {
+                subscriptionEventSource = new EventSourcePolyfill(url, {
+                    headers: {
+                        Authorization: `Bearer ${bearer}`,
+                    },
+                });
+            }
+            subscriptionEventSource.onmessage = function(event) {
+                console.debug('[EventSource]', event);
+                let data = JSON.parse(event.data);
+                eventContainer.innerHTML += eventTemplate
+                    .replace('{content}', '<pre>'+JSON.stringify(JSON.parse(event.data), null, 2)+'</pre>')
+                    .replace('{subUrl}', data.id)
+                    .replace('{subId}', data.subscriber)
+                    .replace('{subTopic}', data.topic)
+                    .replace('{subPayload}', JSON.stringify(data.payload, null, 2));
+                updateScroll('active-subscription-list');
+            };
+            console.debug('started event source', url);
+        }
+
+        function bindActiveSubscriptionButton() {
+            document.getElementById('active-subscription-button').addEventListener('click', function (e) {
+                e.preventDefault();
+                subscribeActiveSubscription();
+
+                toggleActiveSubscriptionButton();
+            });
+            document.getElementById('stop-active-subscription-button').addEventListener('click', function (e) {
+                e.preventDefault();
+                unsubscribeActiveSubscription();
+
+                toggleActiveSubscriptionButton();
+            });
+        }
+
+        function unsubscribeActiveSubscription() {
+            if (null === subscriptionEventSource) {
+                return;
+            }
+
+            subscriptionEventSource.close();
+            subscriptionEventSource = null;
+            document.getElementById('active-subscription-list').innerHTML = '';
+            console.debug('closing subscriptions event source');
+        }
+
+        function toggleActiveSubscriptionButton() {
+            document.getElementById('active-subscription-button').classList.toggle('visually-hidden');
+            document.getElementById('stop-active-subscription-button').classList.toggle('visually-hidden');
         }
 
         (function () {
@@ -439,6 +548,7 @@ foo</pre>
             bindSubscribe();
             bindPublish();
             bindSettings();
+            bindActiveSubscriptionButton();
         })();
     </script>
 </body>

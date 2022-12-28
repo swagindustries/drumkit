@@ -20,4 +20,6 @@ interface EventStoreInterface
 
     public function store(Update $update): Promise;
     public function reconcile(string $lastEventId): Promise;
+
+    public function getLastEventID(): LastEventID;
 }

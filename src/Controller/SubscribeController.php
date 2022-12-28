@@ -21,10 +21,14 @@ use Psr\Log\NullLogger;
 use SwagIndustries\MercureRouter\Http\QueryParser;
 use SwagIndustries\MercureRouter\Mercure\Hub;
 use SwagIndustries\MercureRouter\Mercure\Subscriber;
+use SwagIndustries\MercureRouter\Mercure\Update;
+use SwagIndustries\MercureRouter\Security\Security;
+use Symfony\Component\Uid\Uuid;
 use function Amp\call;
 
 class SubscribeController implements RequestHandler
 {
+    use SubscriptionNormalizerTrait;
     public function __construct(
         private Hub $mercure,
         private LoggerInterface $logger = new NullLogger(),
@@ -35,14 +39,24 @@ class SubscribeController implements RequestHandler
         /** @var array{topic?: array|string} $query */
         $query = QueryParser::parse($request->getUri()->getQuery());
 
-        $subscriber = new Subscriber((array) $query['topic']);
+        /** @var array $jwtContent */
+        $jwtContent = $request->getAttribute(Security::ATTRIBUTE_JWT_PAYLOAD)['mercure'] ?? [];
+
+        $subscriber = new Subscriber(
+            (array) $query['topic'],
+            $this->validateAndReturnTopics((array) ($jwtContent['subscribe'] ?? [])),
+            (array) ($jwtContent['payload'] ?? [])
+        );
 
         $this->logger->debug("New subscriber with query '{$request->getUri()->getQuery()}'");
 
         $this->mercure->addSubscriber($subscriber);
+        $this->publishSubscriptions($subscriber, true);
 
         $request->getClient()->onClose(function () use ($subscriber) {
             $this->mercure->removeSubscriber($subscriber);
+            $this->publishSubscriptions($subscriber, false);
+            $subscriber->emitter->complete();
         });
 
         return call(function () use ($subscriber) {
@@ -57,5 +71,34 @@ class SubscribeController implements RequestHandler
                 new IteratorStream($subscriber->emitter->iterate())
             );
         });
+    }
+    private function publishSubscriptions(Subscriber $subscriber, bool $active): void
+    {
+        foreach ($subscriber->topics as $topic) {
+            $this->mercure->publish(new Update(
+                topics: ['/.well-known/mercure/subscriptions{/topic}{/subscriber}'],
+                data: json_encode(array_merge(
+                    ['@context' => 'https://mercure.rocks/'],
+                    $this->normalizeSubscription($subscriber, $topic, $active)
+                )),
+                private: true,
+                id: (string)Uuid::v4(),
+                type: null
+            ));
+        }
+    }
+
+    private function validateAndReturnTopics(array $subscribe): array
+    {
+        $topics = [];
+        foreach ($subscribe as $topic) {
+            if (!is_string($topic)) {
+                continue;
+            }
+
+            $topics[] = $topic;
+        }
+
+        return $topics;
     }
 }

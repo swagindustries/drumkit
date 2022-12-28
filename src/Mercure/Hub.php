@@ -13,6 +13,7 @@ namespace SwagIndustries\MercureRouter\Mercure;
 use Amp\Loop;
 use Amp\Promise;
 use SwagIndustries\MercureRouter\Mercure\Store\EventStoreInterface;
+use SwagIndustries\MercureRouter\Mercure\Store\LastEventID;
 use function Amp\call;
 
 class Hub
@@ -21,6 +22,7 @@ class Hub
 
     /** @var Subscriber[] */
     private array $subscribers; // @todo: perf opti: using another thing than php array
+    /** @var Subscriber[] */
     private Privacy $privacy;
 
     public function __construct(private EventStoreInterface $store, Privacy $privacy = null)
@@ -43,7 +45,26 @@ class Hub
         });
     }
 
-    public function addSubscriber($subscriber): void
+    /**
+     * @return Subscriber[]
+     */
+    public function getSubscribers(): array
+    {
+        return $this->subscribers;
+    }
+
+    public function getSubscriber(string $id): Subscriber|null
+    {
+        foreach ($this->subscribers as $subscriber) {
+            if ($subscriber->id === $id) {
+                return $subscriber;
+            }
+        }
+
+        return null;
+    }
+
+    public function addSubscriber(Subscriber $subscriber): void
     {
         $this->subscribers[] = $subscriber;
     }
@@ -56,5 +77,10 @@ class Hub
                 break;
             }
         }
+    }
+
+    public function getLastEventID(): LastEventID
+    {
+        return $this->store->getLastEventID();
     }
 }

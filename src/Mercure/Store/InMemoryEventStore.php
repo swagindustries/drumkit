@@ -65,4 +65,16 @@ class InMemoryEventStore implements EventStoreInterface
 
         return new Success($reconciliation);
     }
+
+    public function getLastEventID(): LastEventID
+    {
+        if ($this->store->isEmpty()) {
+            return new LastEventID();
+        }
+
+        /** @var Update $event */
+        $event = $this->store->last()->value;
+
+        return new LastEventID($event->id);
+    }
 }

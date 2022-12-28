@@ -15,22 +15,25 @@ use Amp\Emitter;
 use Amp\Iterator;
 use Amp\Promise;
 use Amp\Success;
+use Symfony\Component\Uid\Uuid;
 
 class Subscriber
 {
+    public readonly string $id;
     public readonly array $privateTopics;
+    /** @var string[] */
     public readonly array $topics;
+    public readonly array $payload;
+
     public readonly Emitter $emitter;
 
-    /** @var Update[] */
-    private array $messages;
-
-    public function __construct(array $topics, array $privateTopics = [])
+    public function __construct(array $topics, array $privateTopics = [], array $payload = [])
     {
         $this->emitter = new Emitter();
+        $this->id = Uuid::v4();
         $this->topics = $topics;
         $this->privateTopics = $privateTopics;
-        $this->messages = [];
+        $this->payload = $payload;
     }
 
     public function dispatch(Update $update): Promise

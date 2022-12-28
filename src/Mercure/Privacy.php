@@ -14,9 +14,10 @@ final class Privacy
 {
     public function subscriberCanReceive(Subscriber $subscriber, Update $update): bool
     {
-        return true;
         if ($update->private) {
-            return !empty(array_intersect($subscriber->privateTopics, $update->topics));
+            return
+                !empty(array_intersect($subscriber->privateTopics, $update->topics))
+                && !empty(array_intersect($subscriber->topics, $update->topics));
         }
 
         return !empty(array_intersect($subscriber->topics, $update->topics));

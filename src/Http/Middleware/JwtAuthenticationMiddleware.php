@@ -20,6 +20,7 @@ use Amp\Http\Status;
 use Amp\Promise;
 use Amp\Success;
 use SwagIndustries\MercureRouter\Exception\BearerNotFoundException;
+use SwagIndustries\MercureRouter\Exception\WrongBearerException;
 use SwagIndustries\MercureRouter\Security\Security;
 
 abstract class JwtAuthenticationMiddleware implements Middleware
@@ -32,10 +33,12 @@ abstract class JwtAuthenticationMiddleware implements Middleware
     {
         try {
             if (!$this->validate($request)) {
-                return new Success($this->error('Wrong token'));
+                return new Success($this->error('Invalid token'));
             }
         } catch (BearerNotFoundException $e) {
             return new Success($this->error('Missing authentication'));
+        } catch (WrongBearerException $e) {
+            return new Success($this->error('Wrong authentication'));
         }
 
         return $requestHandler->handleRequest($request);

@@ -32,14 +32,14 @@ class Options
     private const DEFAULT_SECURITY_KEY = '!ChangeThisMercureHubJWTSecretKey!';
     private const DEFAULT_SECURITY_ALG = Signer::SHA_256;
 
-    // Debug mode
+    // Debug mode (enable a UI to test mercure features & debug logging)
     private bool $devMode;
 
     // HTTP config
     private int $tlsPort;
     private int $unsecuredPort;
     private array $hosts;
-    private int $writeTimeout; // Timeout in seconds, default to 10min
+    private int $writeTimeout; // Timeout in seconds, default to 45s
 
     // SSL configuration
     private string $certificate;
@@ -48,6 +48,11 @@ class Options
     // Security config
     private SecurityOptions $subscriberSecurity;
     private SecurityOptions $publisherSecurity;
+
+    // Mercure-specific options
+    // see https://mercure.rocks/spec#active-subscriptions
+    // Test it in dev mode
+    private bool $activeSubscriptionEnabled;
 
     // No dependency injection in this project
     // so dependencies are managed here
@@ -62,7 +67,9 @@ class Options
         int $tlsPort = 443,
         int $unsecuredPort = 80,
         array $hosts = ['[::]', '0.0.0.0'], // open by default to the external network
-        int $writeTimeout = 600,
+        int $writeTimeout = 45,
+        bool $activeSubscriptionEnabled = false,
+        // The dev mode enables the UI/Debugger
         bool $devMode = false,
         LoggerInterface $logger = null,
         RouterFactory $requestHandlerRouterFactory = null,
@@ -76,6 +83,7 @@ class Options
         $this->hosts = $hosts;
         $this->writeTimeout = $writeTimeout;
         $this->devMode = $devMode;
+        $this->activeSubscriptionEnabled = $activeSubscriptionEnabled;
         $this->logger = $logger ?? DefaultLoggerFactory::createDefaultLogger();
         $this->requestHandlerRouterFactory = $requestHandlerRouterFactory;
         $this->subscriberSecurity = $subscriberSecurity ?? new SecurityOptions(self::DEFAULT_SECURITY_KEY, self::DEFAULT_SECURITY_ALG);
@@ -164,10 +172,10 @@ class Options
         }
 
         if ($this->devMode) {
-            return $this->requestHandlerRouterFactory = new DevRouterFactory($this->logger);
+            return $this->requestHandlerRouterFactory = new DevRouterFactory($this->activeSubscriptionEnabled, $this->logger);
         }
 
-        return $this->requestHandlerRouterFactory = new RouterFactory($this->logger);
+        return $this->requestHandlerRouterFactory = new RouterFactory($this->activeSubscriptionEnabled, $this->logger);
     }
 
     private function getAuthorizationExtractor(): AuthorizationExtractorInterface

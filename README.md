@@ -63,6 +63,13 @@ learn more in the CHANGELOG.md file provided as well.
 TODO
 ----
 
-- Switch to amphp router
-- Use new amphp version (with fibers)
-- Complete support for authentication
+- [ ] Active subscriptions events
+- [ ] Security: JWS verifications (on all endpoints)
+- [ ] Security: CORS configuration (on all endpoints)
+- [ ] Configuration by file
+- [ ] Test suite
+- [ ] Docker
+- [ ] Benchmark
+- [ ] Use new amphp version (with fibers)
+- [ ] Header `Last-Event-ID` https://mercure.rocks/spec#reconciliation
+- [ ] Redact help modal in UI
