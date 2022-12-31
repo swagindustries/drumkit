@@ -9,8 +9,6 @@ use Amp\Http\Server\Router;
 use Amp\Http\Status;
 use Amp\Promise;
 use SwagIndustries\MercureRouter\Mercure\Hub;
-use SwagIndustries\MercureRouter\Mercure\Store\EventStoreInterface;
-use SwagIndustries\MercureRouter\Mercure\Subscriber;
 use function Amp\call;
 
 class GetSubscriptionsController implements RequestHandler
