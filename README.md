@@ -24,9 +24,18 @@ Prepare dev environment
 -----------------------
 
 ```
+make configure-dev
+composer install
+# optionally:
 echo "127.0.0.1	mercure-router.local" | sudo tee --append /etc/host > /dev/null
-make setup
 ```
+
+Run it with:
+
+```
+php bin/main.php
+```
+
 
 Running in production
 ---------------------
@@ -36,6 +45,9 @@ Read this: https://amphp.org/http-server/production
 
 Note about the original mercure
 -------------------------------
+
+To compare behavior with the official mercure distribution it may be interesting to run it. Here is the
+procedure to achieve this.
 
 Running it:
 
