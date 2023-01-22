@@ -419,12 +419,7 @@ foo</pre>
         function bindSettings() {
             const inputKey = document.getElementById('jwt-key');
             inputKey.addEventListener('blur', async function(e) {
-                let jwt = await makeJwt(
-                    document.getElementById('authorized-topics').innerHTML.split('\n')
-                );
-                const inputJwt = document.getElementById('jwt');
-                inputJwt.value = jwt;
-                settings.bearer = jwt;
+                await prepareJwt();
             });
             document.querySelectorAll('.auth-type-check').forEach(function(input) {
                 input.addEventListener('click', function(e) {
@@ -449,6 +444,15 @@ foo</pre>
             }).setProtectedHeader({ alg: 'HS256' }).sign(encoder.encode(inputKey.value));
 
             return jwt;
+        }
+
+        async function prepareJwt() {
+            let jwt = await makeJwt(
+                document.getElementById('authorized-topics').innerHTML.split('\n')
+            );
+            const inputJwt = document.getElementById('jwt');
+            inputJwt.value = jwt;
+            settings.bearer = jwt;
         }
 
         async function subscribeActiveSubscription() {
@@ -544,7 +548,7 @@ foo</pre>
         }
 
         (function () {
-            makeJwt();
+            prepareJwt();
             bindSubscribe();
             bindPublish();
             bindSettings();
