@@ -15,7 +15,7 @@ trait SubscriptionNormalizerTrait
             'type' => 'Subscription',
             'subscriber' => $subscriber->id,
             'topic' => $topic,
-            'active' => true,
+            'active' => $active,
             'payload' => $subscriber->payload
         ];
     }

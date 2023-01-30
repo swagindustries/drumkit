@@ -53,23 +53,26 @@ class SubscribeController implements RequestHandler
         $this->mercure->addSubscriber($subscriber);
         $this->publishSubscriptions($subscriber, true);
 
-        $request->getClient()->onClose(function () use ($subscriber) {
+        $response = new Response(Status::OK,
+            [
+                // TODO: fixme (security issue with *)
+                'Access-Control-Allow-Origin' => '*',
+                'Content-Type' => 'text/event-stream',
+                'Cache-Control' => 'no-cache',
+                'X-Accel-Buffering' => 'no'
+            ],
+            new IteratorStream($subscriber->emitter->iterate())
+        );
+
+        $response->onDispose(function () use ($subscriber) {
             $this->mercure->removeSubscriber($subscriber);
             $this->publishSubscriptions($subscriber, false);
             $subscriber->emitter->complete();
+            var_dump('on dispose occured!');
         });
 
-        return call(function () use ($subscriber) {
-            return new Response(Status::OK,
-                [
-                    // TODO: fixme (security issue with *)
-                    'Access-Control-Allow-Origin' => '*',
-                    'Content-Type' => 'text/event-stream',
-                    'Cache-Control' => 'no-cache',
-                    'X-Accel-Buffering' => 'no'
-                ],
-                new IteratorStream($subscriber->emitter->iterate())
-            );
+        return call(function () use ($response) {
+            return $response;
         });
     }
     private function publishSubscriptions(Subscriber $subscriber, bool $active): void
