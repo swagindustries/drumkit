@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace SwagIndustries\MercureRouter\Configuration;
 
 use Amp\Http\Server\Router;
+use Amp\Http\Server\SocketHttpServer;
 use Psr\Log\LoggerInterface;
 use SwagIndustries\MercureRouter\Exception\WrongOptionException;
 use SwagIndustries\MercureRouter\Http\Router\DevRouterFactory;
@@ -39,7 +40,7 @@ class Options
     private int $tlsPort;
     private int $unsecuredPort;
     private array $hosts;
-    private int $writeTimeout; // Timeout in seconds, default to 45s
+    private int $streamTimeout; // Timeout in seconds, default to 45s
 
     // SSL configuration
     private string $certificate;
@@ -67,7 +68,7 @@ class Options
         int $tlsPort = 443,
         int $unsecuredPort = 80,
         array $hosts = ['[::]', '0.0.0.0'], // open by default to the external network
-        int $writeTimeout = 45,
+        int $streamTimeout = 120, // official client is 45
         bool $activeSubscriptionEnabled = false,
         // The dev mode enables the UI/Debugger
         bool $devMode = false,
@@ -81,10 +82,10 @@ class Options
         $this->tlsPort = $tlsPort;
         $this->unsecuredPort = $unsecuredPort;
         $this->hosts = $hosts;
-        $this->writeTimeout = $writeTimeout;
+        $this->streamTimeout = $streamTimeout;
         $this->devMode = $devMode;
         $this->activeSubscriptionEnabled = $activeSubscriptionEnabled;
-        $this->logger = $logger ?? DefaultLoggerFactory::createDefaultLogger();
+        $this->logger = $logger ?? DefaultLoggerFactory::createDefaultLogger($devMode);
         $this->requestHandlerRouterFactory = $requestHandlerRouterFactory;
         $this->subscriberSecurity = $subscriberSecurity ?? new SecurityOptions(self::DEFAULT_SECURITY_KEY, self::DEFAULT_SECURITY_ALG);
         $this->publisherSecurity = $publisherSecurity ?? new SecurityOptions(self::DEFAULT_SECURITY_KEY, self::DEFAULT_SECURITY_ALG);
@@ -121,15 +122,15 @@ class Options
         return $this->unsecuredPort;
     }
 
-    public function writeTimeout(): int
+    public function streamTimeout(): int
     {
-        return $this->writeTimeout;
+        return $this->streamTimeout;
     }
 
-    public function requestHandlerRouter(): Router
+    public function requestHandlerRouter(SocketHttpServer $httpServer): Router
     {
         $hub = new Hub(new InMemoryEventStore());
-        return $this->getRequestHandlerRouterFactory()->createRouter($hub, $this->getSecurity());
+        return $this->getRequestHandlerRouterFactory()->createRouter($httpServer, $hub, $this->getSecurity());
     }
 
     public function subscriberSecurity(): SecurityOptions

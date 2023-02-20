@@ -10,11 +10,7 @@
 
 namespace SwagIndustries\MercureRouter\Mercure;
 
-use Amp\Deferred;
-use Amp\Emitter;
-use Amp\Iterator;
-use Amp\Promise;
-use Amp\Success;
+use Amp\Pipeline\Queue;
 use Symfony\Component\Uid\Uuid;
 
 class Subscriber
@@ -25,20 +21,20 @@ class Subscriber
     public readonly array $topics;
     public readonly array $payload;
 
-    public readonly Emitter $emitter;
+    public readonly Queue $emitter;
 
     public function __construct(array $topics, array $privateTopics = [], array $payload = [])
     {
-        $this->emitter = new Emitter();
+        $this->emitter = new Queue();
         $this->id = Uuid::v4();
         $this->topics = $topics;
         $this->privateTopics = $privateTopics;
         $this->payload = $payload;
     }
 
-    public function dispatch(Update $update): Promise
+    public function dispatch(Update $update)
     {
-        return $this->emitter->emit($update->format());
+        $this->emitter->pushAsync($update->format());
     }
 
 

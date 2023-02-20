@@ -12,24 +12,20 @@ declare(strict_types=1);
 
 namespace SwagIndustries\MercureRouter\Controller;
 
+use Amp\Http\HttpStatus;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\RequestHandler;
 use Amp\Http\Server\Response;
-use Amp\Http\Status;
-use Amp\Promise;
-use function Amp\call;
 
 final class NotFoundController implements RequestHandler
 {
-    public function handleRequest(Request $request): Promise
+    public function handleRequest(Request $request): Response
     {
-        return call(function () {
-            return new Response(
-                Status::NOT_FOUND,
-                ["content-type" => "text/plain; charset=utf-8"],
-                '404 Not found'
-            );
-        });
+        return new Response(
+            HttpStatus::NOT_FOUND,
+            ["content-type" => "text/plain; charset=utf-8"],
+            '404 Not found'
+        );
     }
 
     public function support(Request $request): bool

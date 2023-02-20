@@ -11,6 +11,8 @@ declare(strict_types=1);
 namespace SwagIndustries\MercureRouter\Controller;
 
 use Amp\ByteStream\IteratorStream;
+use Amp\ByteStream\ReadableIterableStream;
+use Amp\Http\HttpStatus;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\RequestHandler;
 use Amp\Http\Server\Response;
@@ -34,7 +36,7 @@ class SubscribeController implements RequestHandler
         private LoggerInterface $logger = new NullLogger(),
     ) {}
 
-    public function handleRequest(Request $request): Promise
+    public function handleRequest(Request $request): Response
     {
         /** @var array{topic?: array|string} $query */
         $query = QueryParser::parse($request->getUri()->getQuery());
@@ -53,24 +55,29 @@ class SubscribeController implements RequestHandler
         $this->mercure->addSubscriber($subscriber);
         $this->publishSubscriptions($subscriber, true);
 
-        $request->getClient()->onClose(function () use ($subscriber) {
+//        $request->getClient()->onClose(function () use ($subscriber) {
+//            $this->mercure->removeSubscriber($subscriber);
+//            $this->publishSubscriptions($subscriber, false);
+//            $subscriber->emitter->complete();
+//        });
+
+        $response = new Response(HttpStatus::OK,
+            [
+                // TODO: fixme (security issue with *)
+                'Access-Control-Allow-Origin' => '*',
+                'Content-Type' => 'text/event-stream',
+                'Cache-Control' => 'no-cache',
+                'X-Accel-Buffering' => 'no'
+            ],
+            new ReadableIterableStream($subscriber->emitter->iterate())
+        );
+        $response->onDispose(function () use ($subscriber) {
             $this->mercure->removeSubscriber($subscriber);
             $this->publishSubscriptions($subscriber, false);
             $subscriber->emitter->complete();
         });
 
-        return call(function () use ($subscriber) {
-            return new Response(Status::OK,
-                [
-                    // TODO: fixme (security issue with *)
-                    'Access-Control-Allow-Origin' => '*',
-                    'Content-Type' => 'text/event-stream',
-                    'Cache-Control' => 'no-cache',
-                    'X-Accel-Buffering' => 'no'
-                ],
-                new IteratorStream($subscriber->emitter->iterate())
-            );
-        });
+        return $response;
     }
     private function publishSubscriptions(Subscriber $subscriber, bool $active): void
     {

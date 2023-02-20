@@ -16,15 +16,20 @@ use Amp\ByteStream\ResourceOutputStream;
 use Amp\Log\ConsoleFormatter;
 use Amp\Log\StreamHandler;
 use Monolog\Logger;
+use Amp\ByteStream;
+use Monolog\Processor\PsrLogMessageProcessor;
+use Psr\Log\LogLevel;
 
 final class DefaultLoggerFactory
 {
-    public static function createDefaultLogger(): Logger
+    public static function createDefaultLogger($debug = false): Logger
     {
-        $logHandler = new StreamHandler(new ResourceOutputStream(STDOUT));
+        $logHandler = new StreamHandler(ByteStream\getStdout(), level: $debug ? LogLevel::DEBUG : LogLevel::WARNING);
+        $logHandler->pushProcessor(new PsrLogMessageProcessor());
         $logHandler->setFormatter(new ConsoleFormatter());
-        $logger = new Logger('default-stdout-logger');
+        $logger = new Logger('server');
         $logger->pushHandler($logHandler);
+        $logger->useLoggingLoopDetection(false);
 
         return $logger;
     }

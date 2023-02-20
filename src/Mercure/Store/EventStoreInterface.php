@@ -11,15 +11,14 @@
 
 namespace SwagIndustries\MercureRouter\Mercure\Store;
 
-use Amp\Promise;
 use SwagIndustries\MercureRouter\Mercure\Update;
 
 interface EventStoreInterface
 {
     public const EARLIEST = 'earliest';
 
-    public function store(Update $update): Promise;
-    public function reconcile(string $lastEventId): Promise;
+    public function store(Update $update);
+    public function reconcile(string $lastEventId);
 
     public function getLastEventID(): LastEventID;
 }

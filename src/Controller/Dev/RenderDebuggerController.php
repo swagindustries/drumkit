@@ -12,24 +12,21 @@ declare(strict_types=1);
 
 namespace SwagIndustries\MercureRouter\Controller\Dev;
 
+use Amp\Http\HttpStatus;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\RequestHandler;
 use Amp\Http\Server\Response;
-use Amp\Http\Status;
-use Amp\Promise;
-use Amp\Success;
-use SwagIndustries\MercureRouter\Controller\ControllerInterface;
 use SwagIndustries\MercureRouter\Mercure\Hub;
 
 class RenderDebuggerController implements RequestHandler
 {
     public const URL = Hub::MERCURE_PATH . '/ui/';
-    public function handleRequest(Request $request): Promise
+    public function handleRequest(Request $request): Response
     {
-        return new Success(new Response(
-            Status::OK,
+        return new Response(
+            HttpStatus::OK,
             ["content-type" => "text/html; charset=utf-8"],
             file_get_contents(__DIR__ . '/../../../ui/index.html')
-        ));
+        );
     }
 }

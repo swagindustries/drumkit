@@ -12,10 +12,11 @@ declare(strict_types=1);
 
 namespace SwagIndustries\MercureRouter\Http\Router;
 
+use Amp\Http\Server\DefaultErrorHandler;
 use Amp\Http\Server\Router;
+use Amp\Http\Server\SocketHttpServer;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use SwagIndustries\MercureRouter\Controller\ActiveSubscriptionController;
 use SwagIndustries\MercureRouter\Controller\NotFoundController;
 use SwagIndustries\MercureRouter\Controller\PublishController;
 use SwagIndustries\MercureRouter\Controller\ResponseMode;
@@ -33,9 +34,9 @@ class RouterFactory
 
     public function __construct(private bool $activeSubscription = false, private LoggerInterface $logger = new NullLogger()) {}
 
-    public function createRouter(Hub $mercure, Security $security): Router
+    public function createRouter(SocketHttpServer $httpServer, Hub $mercure, Security $security): Router
     {
-        $router = new Router();
+        $router = new Router($httpServer, new DefaultErrorHandler());
         $notFoundController = new NotFoundController();
         $router->setFallback($notFoundController);
 

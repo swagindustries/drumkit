@@ -12,21 +12,17 @@ declare(strict_types=1);
 
 namespace SwagIndustries\MercureRouter\Controller\Dev;
 
+use Amp\Http\HttpStatus;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\RequestHandler;
 use Amp\Http\Server\Response;
-use Amp\Http\Status;
-use Amp\Promise;
-use Amp\Success;
-use SwagIndustries\MercureRouter\Controller\ControllerInterface;
-use SwagIndustries\MercureRouter\Mercure\Hub;
 
 class RedirectToDebuggerController implements RequestHandler
 {
-    public function handleRequest(Request $request): Promise
+    public function handleRequest(Request $request): Response
     {
-        return new Success(new Response(Status::TEMPORARY_REDIRECT, [
+        return new Response(HttpStatus::TEMPORARY_REDIRECT, [
             'location' => RenderDebuggerController::URL
-        ]));
+        ]);
     }
 }

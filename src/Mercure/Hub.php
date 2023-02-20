@@ -12,6 +12,7 @@ namespace SwagIndustries\MercureRouter\Mercure;
 
 use Amp\Loop;
 use Amp\Promise;
+use Revolt\EventLoop;
 use SwagIndustries\MercureRouter\Mercure\Store\EventStoreInterface;
 use SwagIndustries\MercureRouter\Mercure\Store\LastEventID;
 use function Amp\call;
@@ -31,18 +32,17 @@ class Hub
         $this->subscribers = [];
     }
 
-    public function publish(Update $update): Promise
+    public function publish(Update $update)
     {
-        return call(function () use ($update) {
-            foreach ($this->subscribers as $subscriber) {
-                yield $this->store->store($update);
-                if ($this->privacy->subscriberCanReceive($subscriber, $update)) {
-                    Loop::defer(function () use ($subscriber, $update) {
-                        yield $subscriber->dispatch($update);
-                    });
-                }
+        foreach ($this->subscribers as $subscriber) {
+            $this->store->store($update);
+            if ($this->privacy->subscriberCanReceive($subscriber, $update)) {
+                // Note: originally was a bugfix because the dispatch is blocking
+                //EventLoop::defer(function () use ($subscriber, $update) {
+                $subscriber->dispatch($update);
+                //});
             }
-        });
+        }
     }
 
     /**

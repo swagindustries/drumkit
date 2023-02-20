@@ -10,15 +10,15 @@
 
 namespace SwagIndustries\MercureRouter;
 
-use Amp\Http\Server\HttpServer;
+use Amp\Http\Server\DefaultErrorHandler;
+use Amp\Http\Server\Driver\DefaultHttpDriverFactory;
 use Amp\Http\Server\Middleware\CompressionMiddleware;
-use Amp\Loop;
+use Amp\Http\Server\SocketHttpServer;
 use Amp\Socket\BindContext;
-use Amp\Socket\Certificate;
-use Amp\Socket\ServerTlsContext;
-use Amp\Socket\Server as SocketServer;
 use SwagIndustries\MercureRouter\Configuration\Options;
 use function Amp\Http\Server\Middleware\stack;
+use Amp\Socket;
+use function Amp\trapSignal;
 
 class Server
 {
@@ -26,54 +26,50 @@ class Server
 
     public function start()
     {
-        Loop::run(function () {
-            $certificate = new Certificate($this->options->certificate(), $this->options->key());
-            $logger = $this->options->logger();
+        $logger = $this->options->logger();
 
-            $tlsContext = (new BindContext())
-                ->withTlsContext((new ServerTlsContext())->withDefaultCertificate($certificate));
+        if ($this->options->isDevMode()) {
+            $logger->info('Running in dev mode...');
+        }
 
-            $this->verifiyUserRights($this->options);
+        $certificate = new Socket\Certificate($this->options->certificate(), $this->options->key());
 
-            $connections = iterator_to_array($this->generateConnections($this->options, $tlsContext));
+        $tlsContext = (new Socket\BindContext)
+            ->withTlsContext((new Socket\ServerTlsContext)->withDefaultCertificate($certificate));
 
-            $options = new \Amp\Http\Server\Options();
-            if ($this->options->isDevMode()) {
-                $options = $options->withDebugMode();
-            }
+        $this->verifiyUserRights($this->options);
 
-            $options = $options->withHttp2Timeout($this->options->writeTimeout());
+        $httpDriverFactory = new DefaultHttpDriverFactory($logger, streamTimeout: $this->options->streamTimeout());
+        $httpServer = new SocketHttpServer(
+            $logger,
+            httpDriverFactory: $httpDriverFactory,
+            // This will disable automatic compression configuration
+            // we enable this by hand to have a better control
+            enableCompression: false
+        );
 
-            $httpServer = new HttpServer($connections, stack(
-                $this->options->requestHandlerRouter(),
+        $this->enableConnection($httpServer, $tlsContext);
 
-                // Enabling compression
-                // Those values are required to be changed for SSE because the compression middleware will buffer a lot
-                // will we need to stream the response
-                // See https://github.com/amphp/http-server/issues/324 for more information
-                new CompressionMiddleware(
-                    minimumLength: 12,
-                    chunkSize: 1,
-                )
-            ), $logger, $options);
+        $httpServer->start(stack(
+            $this->options->requestHandlerRouter($httpServer),
+            new CompressionMiddleware(minimumLength: 12)
+        ), new DefaultErrorHandler());
 
-            yield $httpServer->start();
 
-            Loop::onSignal(\SIGINT, static function (string $watcherId) use ($httpServer) {
+        // Await SIGINT or SIGTERM to be received.
+        $signal = trapSignal([\SIGINT, \SIGTERM]);
+        $logger->info(sprintf("Received signal %d, stopping HTTP server", $signal));
 
-                // TODO: add things to do before shutdown (this function is currently useless)
+        // Todo: complete all subscriptions
 
-                Loop::cancel($watcherId);
-                yield $httpServer->stop();
-            });
-        });
+        $httpServer->stop();
     }
 
-    public function generateConnections(Options $options, BindContext $tlsContext): \Generator
+    private function enableConnection(SocketHttpServer $server, BindContext $tlsContext): void
     {
-        foreach ($options->hosts() as $host) {
-            yield SocketServer::listen($host . ':' . $options->unsecuredPort());
-            yield SocketServer::listen($host . ':' . $options->tlsPort(), $tlsContext);
+        foreach ($this->options->hosts() as $host) {
+            $server->expose($host . ':' . $this->options->unsecuredPort());
+            $server->expose($host . ':' . $this->options->tlsPort(), $tlsContext);
         }
     }
 

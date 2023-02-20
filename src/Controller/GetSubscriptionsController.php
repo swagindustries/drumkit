@@ -2,20 +2,18 @@
 
 namespace SwagIndustries\MercureRouter\Controller;
 
+use Amp\Http\HttpStatus;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\RequestHandler;
 use Amp\Http\Server\Response;
 use Amp\Http\Server\Router;
-use Amp\Http\Status;
-use Amp\Promise;
 use SwagIndustries\MercureRouter\Mercure\Hub;
-use function Amp\call;
 
 class GetSubscriptionsController implements RequestHandler
 {
     use SubscriptionNormalizerTrait;
     public function __construct(private Hub $mercure, private NotFoundController $notFound) {}
-    public function handleRequest(Request $request): Promise
+    public function handleRequest(Request $request): Response
     {
         ['topic' => $topicQuery, 'subscriber' => $subscriberId] = $request->getAttribute(Router::class) + ['topic' => null, 'subscriber' => null];
 
@@ -52,21 +50,19 @@ class GetSubscriptionsController implements RequestHandler
 
         $responseContent['lastEventID'] = (string) $this->mercure->getLastEventID();
 
-        return call(function () use ($responseContent) {
-            return new Response(
-                Status::OK,
-                [
-                    // TODO: fixme (security issue with *)
-                    'Access-Control-Allow-Origin' => '*',
-                    // Content-Type is a requirement from the spec
-                    // "The web API MUST set the `Content-Type` HTTP header to `application/ld+json`."
-                    // https://mercure.rocks/spec#subscription-api
-                    'Content-Type' => 'application/ld+json',
-                    'Cache-Control' => 'no-cache',
-                    'X-Accel-Buffering' => 'no'
-                ],
-                json_encode($responseContent)
-            );
-        });
+        return new Response(
+            HttpStatus::OK,
+            [
+                // TODO: fixme (security issue with *)
+                'Access-Control-Allow-Origin' => '*',
+                // Content-Type is a requirement from the spec
+                // "The web API MUST set the `Content-Type` HTTP header to `application/ld+json`."
+                // https://mercure.rocks/spec#subscription-api
+                'Content-Type' => 'application/ld+json',
+                'Cache-Control' => 'no-cache',
+                'X-Accel-Buffering' => 'no'
+            ],
+            json_encode($responseContent)
+        );
     }
 }

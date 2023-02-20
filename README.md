@@ -40,7 +40,7 @@ php bin/main.php
 Running in production
 ---------------------
 
-Read this: https://amphp.org/http-server/production
+Read this: https://amphp.org/production
 
 
 Note about the original mercure

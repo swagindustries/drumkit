@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace SwagIndustries\MercureRouter\Mercure\Store;
 
-use Amp\Promise;
-use Amp\Success;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use SwagIndustries\MercureRouter\Mercure\Update;
@@ -34,7 +32,7 @@ class InMemoryEventStore implements EventStoreInterface
         $this->logger = $logger ?? new NullLogger();
     }
 
-    public function store(Update $update): Promise
+    public function store(Update $update)
     {
         if (count($this->store) >= $this->size) {
             $removed = array_shift($this->store);
@@ -43,11 +41,9 @@ class InMemoryEventStore implements EventStoreInterface
 
         $this->logger->debug('Store new update', ['id' => $update->id]);
         $this->store->put($update->id, $update);
-
-        return new Success();
     }
 
-    public function reconcile(string $lastEventId): Promise
+    public function reconcile(string $lastEventId)
     {
         $sendEvents = $lastEventId === self::EARLIEST;
 
@@ -63,7 +59,7 @@ class InMemoryEventStore implements EventStoreInterface
             }
         }
 
-        return new Success($reconciliation);
+        return $reconciliation;
     }
 
     public function getLastEventID(): LastEventID
