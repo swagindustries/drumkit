@@ -7,7 +7,6 @@ use SwagIndustries\MercureRouter\Mercure\Subscriber;
 
 trait SubscriptionNormalizerTrait
 {
-
     private function normalizeSubscription(Subscriber $subscriber, string $topic, bool $active = true): array
     {
         return [

@@ -202,7 +202,7 @@ foo</pre>
                 <h2>Active subscriptions</h2>
                 <button class="btn btn-success" id="active-subscription-button">Listen subscriptions</button>
                 <button class="btn btn-warning visually-hidden" id="stop-active-subscription-button">Stop</button>
-                <div id="active-subscription-list" data-template="&#x3C;div class=&#x22;card&#x22;&#x3E;&#x3C;div class=&#x22;card-body&#x22;&#x3E;&#x3C;h5 class=&#x22;card-title&#x22;&#x3E;Subscription&#x3C;/h5&#x3E;&#x3C;h6 class=&#x22;card-subtitle mb-2 text-muted&#x22;&#x3E;{subUrl}&#x3C;/h6&#x3E;&#x3C;/div&#x3E;&#x3C;ul class=&#x22;list-group list-group-flush&#x22;&#x3E;&#x3C;li class=&#x22;list-group-item&#x22;&#x3E;&#x3C;b&#x3E;subscriber id:&#x3C;/b&#x3E;&#x3C;br&#x3E;&#x3C;span class=&#x22;details&#x22;&#x3E;{subId}&#x3C;/span&#x3E;&#x3C;/li&#x3E;&#x3C;li class=&#x22;list-group-item&#x22;&#x3E;&#x3C;b&#x3E;topic:&#x3C;/b&#x3E;&#x3C;br&#x3E;&#x3C;span class=&#x22;details&#x22;&#x3E;{subTopic}&#x3C;/span&#x3E;&#x3C;/li&#x3E;&#x3C;li class=&#x22;list-group-item&#x22;&#x3E;&#x3C;b&#x3E;payload:&#x3C;/b&#x3E;&#x3C;br&#x3E;&#x3C;pre class=&#x22;details&#x22;&#x3E;{subPayload}&#x3C;/pre&#x3E;&#x3C;/li&#x3E;&#x3C;/ul&#x3E;&#x3C;/div&#x3E;">
+                <div id="active-subscription-list" data-template="&#x3C;div data-subscriber-id=&#x22;{subId}&#x22; class=&#x22;card&#x22;&#x3E;&#x3C;div class=&#x22;card-body&#x22;&#x3E;&#x3C;h5 class=&#x22;card-title&#x22;&#x3E;Subscription&#x3C;/h5&#x3E;&#x3C;h6 class=&#x22;card-subtitle mb-2 text-muted&#x22;&#x3E;{subUrl}&#x3C;/h6&#x3E;&#x3C;/div&#x3E;&#x3C;ul class=&#x22;list-group list-group-flush&#x22;&#x3E;&#x3C;li class=&#x22;list-group-item&#x22;&#x3E;&#x3C;b&#x3E;subscriber id:&#x3C;/b&#x3E;&#x3C;br&#x3E;&#x3C;span class=&#x22;details&#x22;&#x3E;{subId}&#x3C;/span&#x3E;&#x3C;/li&#x3E;&#x3C;li class=&#x22;list-group-item&#x22;&#x3E;&#x3C;b&#x3E;topic:&#x3C;/b&#x3E;&#x3C;br&#x3E;&#x3C;span class=&#x22;details&#x22;&#x3E;{subTopic}&#x3C;/span&#x3E;&#x3C;/li&#x3E;&#x3C;li class=&#x22;list-group-item&#x22;&#x3E;&#x3C;b&#x3E;payload:&#x3C;/b&#x3E;&#x3C;br&#x3E;&#x3C;pre class=&#x22;details&#x22;&#x3E;{subPayload}&#x3C;/pre&#x3E;&#x3C;/li&#x3E;&#x3C;/ul&#x3E;&#x3C;/div&#x3E;">
                 </div>
             </div>
         </div>
@@ -354,7 +354,7 @@ foo</pre>
             const eventId = document.getElementById('publish-event-id').value;
             const eventType = document.getElementById('publish-event-type').value;
             const eventRetry = document.getElementById('publish-event-retry').value;
-            const isPrivate = document.getElementById('publish-private').value === 'on';
+            const isPrivate = document.getElementById('publish-private').checked;
 
             const body = new URLSearchParams({
                 data: data,
@@ -476,9 +476,20 @@ foo</pre>
             }
             subscriptions = await subscriptions.json();
 
-            // Feature to be added here:
-            // list subscriptions already existing at this point in the subscriptions list
-            // subscriptions.subscriptions.forEach(addSubscription);
+            function updateSubscriptionList(data) {
+                if (data.active) {
+                    eventContainer.innerHTML += eventTemplate
+                        .replace('{content}', '<pre>'+JSON.stringify(data, null, 2)+'</pre>')
+                        .replace('{subUrl}', data.id)
+                        .replace(/\{subId}/g, data.subscriber)
+                        .replace('{subTopic}', data.topic)
+                        .replace('{subPayload}', JSON.stringify(data.payload, null, 2));
+                    updateScroll('active-subscription-list');
+                } else {
+                    document.querySelector(`div[data-subscriber-id="${data.subscriber}"]`).remove();
+                }
+            }
+            subscriptions.subscriptions.forEach(updateSubscriptionList);
 
             const url = new URL(settings.hubUrl);
             const topic = '/.well-known/mercure/subscriptions{/topic}{/subscriber}';
@@ -505,13 +516,7 @@ foo</pre>
             subscriptionEventSource.onmessage = function(event) {
                 console.debug('[EventSource]', event);
                 let data = JSON.parse(event.data);
-                eventContainer.innerHTML += eventTemplate
-                    .replace('{content}', '<pre>'+JSON.stringify(JSON.parse(event.data), null, 2)+'</pre>')
-                    .replace('{subUrl}', data.id)
-                    .replace('{subId}', data.subscriber)
-                    .replace('{subTopic}', data.topic)
-                    .replace('{subPayload}', JSON.stringify(data.payload, null, 2));
-                updateScroll('active-subscription-list');
+                updateSubscriptionList(data);
             };
             console.debug('started event source', url);
         }

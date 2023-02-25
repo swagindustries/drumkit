@@ -10,14 +10,11 @@
 declare(strict_types=1);
 namespace SwagIndustries\MercureRouter\Controller;
 
-use Amp\ByteStream\IteratorStream;
 use Amp\ByteStream\ReadableIterableStream;
 use Amp\Http\HttpStatus;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\RequestHandler;
 use Amp\Http\Server\Response;
-use Amp\Http\Status;
-use Amp\Promise;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use SwagIndustries\MercureRouter\Http\QueryParser;
@@ -26,7 +23,6 @@ use SwagIndustries\MercureRouter\Mercure\Subscriber;
 use SwagIndustries\MercureRouter\Mercure\Update;
 use SwagIndustries\MercureRouter\Security\Security;
 use Symfony\Component\Uid\Uuid;
-use function Amp\call;
 
 class SubscribeController implements RequestHandler
 {
@@ -54,12 +50,6 @@ class SubscribeController implements RequestHandler
 
         $this->mercure->addSubscriber($subscriber);
         $this->publishSubscriptions($subscriber, true);
-
-//        $request->getClient()->onClose(function () use ($subscriber) {
-//            $this->mercure->removeSubscriber($subscriber);
-//            $this->publishSubscriptions($subscriber, false);
-//            $subscriber->emitter->complete();
-//        });
 
         $response = new Response(HttpStatus::OK,
             [

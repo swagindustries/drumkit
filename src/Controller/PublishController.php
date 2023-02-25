@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace SwagIndustries\MercureRouter\Controller;
 
 use Amp\Http\HttpStatus;
-use Amp\Http\Server\FormParser\Form;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\RequestHandler;
 use Amp\Http\Server\Response;
@@ -99,11 +98,11 @@ class PublishController implements RequestHandler
     private function respond(string $message): Response
     {
         if ($this->mode === ResponseMode::VERBOSE) {
-            return new Response(Status::BAD_REQUEST, [
+            return new Response(HttpStatus::BAD_REQUEST, [
                 'Content-Type' => 'plain/text'
             ], $message);
         }
 
-        return new Response(Status::BAD_REQUEST);
+        return new Response(HttpStatus::BAD_REQUEST);
     }
 }
