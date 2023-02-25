@@ -197,6 +197,16 @@ foo</pre>
         <div class="row">
             <div class="col">
                 <h2>Discover</h2>
+                <p style="text-align: justify">
+                    This is a part of the Mercure specification, but it is not something to be implemented by
+                    the Mercure server. The Mercure discovery is headers based should be specified in other
+                    services to signal a Mercure server exists.
+                </p>
+                <p>Learn more in <a href="https://mercure.rocks/spec#discovery">the official documentation</a>.</p>
+                <p>
+                    See an implementation example
+                    <a href="https://symfony.com/doc/current/mercure.html#discovery">in Symfony</a>.
+                </p>
             </div>
             <div class="col">
                 <h2>Active subscriptions</h2>
@@ -229,16 +239,12 @@ foo</pre>
                         </div>
                         <div class="row">
                             <div class="col">
-                                <div class="form-check">
-                                    <input type="radio" class="auth-type-check" id="auth-type-cookie" name="auth-type" value="cookie">
-                                    <label class="form-check-label" for="auth-type-cookie"><code>mercureAuthorization</code> cookie</label>
-                                </div>
+                                <input type="radio" class="auth-type-check" id="auth-type-cookie" name="auth-type" value="cookie">
+                                <label class="form-check-label" for="auth-type-cookie"><code>mercureAuthorization</code> cookie</label>
                             </div>
                             <div class="col">
-                                <div class="form-check">
-                                    <input type="radio" class="auth-type-check" id="auth-type-auth" name="auth-type" value="http" checked>
-                                    <label class="form-check-label" for="auth-type-auth"><code>Authorization</code> HTTP Header</label>
-                                </div>
+                                <input type="radio" class="auth-type-check" id="auth-type-auth" name="auth-type" value="http" checked>
+                                <label class="form-check-label" for="auth-type-auth"><code>Authorization</code> HTTP Header</label>
                             </div>
                         </div>
                         <div class="row">
@@ -260,6 +266,46 @@ foo</pre>
                                 <textarea id="jwt" class="form-control"></textarea>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION HELP -->
+    <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="helpModalTitle">Help</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <h3>General information</h3>
+                        <p>
+                            This interface can be used as debugging tool or demonstration tool.<br>
+                            Feel free to test any feature of this Mercure server by using it.
+                        </p>
+                        <h3>Cookie authentication VS HTTP Header authentication</h3>
+                        <p>
+                            If we usually authenticate against APIs by using the header <code>Authorization</code>,
+                            browsers do not support it natively when it comes to SSE. This is why Mercure specifies
+                            the authentication cookies-based.
+                        </p>
+                        <p>
+                            Mercure also specifies HTTP-based authentication because they believe that browsers
+                            will eventually support it in the future and because it is already possible to do it
+                            by using a polyfill. This page uses the package <code>event-source-polyfill</code>.
+                        </p>
+                        <p>
+                            ⚠️ It's important to know that browsers will not list SSE in the network debug console
+                            if you use the polyfill. <b>To see events in the debug section you must go to
+                            settings section and pick cookies authentication</b>.
+                        </p>
                     </div>
                 </div>
                 <div class="modal-footer">
