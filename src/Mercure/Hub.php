@@ -30,8 +30,8 @@ class Hub
 
     public function publish(Update $update)
     {
+        $this->store->store($update);
         foreach ($this->subscribers as $subscriber) {
-            $this->store->store($update);
             if ($this->privacy->subscriberCanReceive($subscriber, $update)) {
                 $subscriber->dispatch($update);
             }

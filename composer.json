@@ -42,7 +42,8 @@
         "amphp/http-client": "v5.0.0-beta.8",
         "amphp/http-client-cookies": "v2.0.0-beta.2",
         "amphp/phpunit-util": "^3.0.0",
-        "phpspec/prophecy-phpunit": "^2.0"
+        "phpspec/prophecy-phpunit": "2.0.x-dev",
+        "dg/bypass-finals": "dev-master"
     },
     "minimum-stability": "dev"
 }
