@@ -3,12 +3,11 @@
 namespace Mercure;
 
 use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use SwagIndustries\MercureRouter\Mercure\Hub;
 use SwagIndustries\MercureRouter\Mercure\Privacy;
 use SwagIndustries\MercureRouter\Mercure\Store\EventStoreInterface;
-use SwagIndustries\MercureRouter\Mercure\Store\InMemoryEventStore;
+use SwagIndustries\MercureRouter\Mercure\Store\LastEventID;
 use SwagIndustries\MercureRouter\Mercure\Subscriber;
 use SwagIndustries\MercureRouter\Mercure\Update;
 
@@ -90,5 +89,20 @@ class HubTest extends TestCase
                 ['subscriber' => $subscriber2->reveal(), 'dispatch' => false]
             ]
         ];
+    }
+
+    public function testSubscriberRemoval()
+    {
+        $subscriber = $this->prophesize(Subscriber::class)->reveal();
+        $this->subject->addSubscriber($subscriber);
+        $this->assertSame([$subscriber], $this->subject->getSubscribers());
+        $this->subject->removeSubscriber($subscriber);
+        $this->assertSame([], $this->subject->getSubscribers());
+    }
+
+    public function testLastIdIsFromStore()
+    {
+        $this->eventStore->getLastEventID()->shouldBeCalled()->willReturn($e = new LastEventID('fake-event-id'));
+        $this->assertSame($e, $this->subject->getLastEventID());
     }
 }
