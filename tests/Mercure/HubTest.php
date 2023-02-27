@@ -1,6 +1,6 @@
 <?php
 
-namespace Mercure;
+namespace SwagIndustries\MercureRouter\Test\Mercure;
 
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;

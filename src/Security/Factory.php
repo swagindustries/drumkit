@@ -19,7 +19,7 @@ use SwagIndustries\MercureRouter\Configuration\SecurityOptions;
 
 class Factory
 {
-    public function createJwtConfigurationFromMercureOptions(SecurityOptions $options)
+    public function createJwtConfigurationFromMercureOptions(SecurityOptions $options): Configuration
     {
         return Configuration::forSymmetricSigner(
             $options->getSigner()->signer(),

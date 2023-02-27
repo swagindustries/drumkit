@@ -15,6 +15,7 @@ use Amp\Http\Server\Request;
 use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\JwtFacade;
+use Lcobucci\JWT\Signer\InvalidKeyProvided;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\SodiumBase64Polyfill;
 use Lcobucci\JWT\Token;
@@ -71,8 +72,9 @@ class Security
                     new \DateTimeZone(\ini_get('date.timezone') ?: 'UTC')
                 ))
             );
-        } catch (InvalidTokenStructure $e) {
-            throw new WrongBearerException($e);
+        } catch (InvalidTokenStructure|InvalidKeyProvided $e) {
+            $this->options->logger()->warning($e->getMessage());
+            $result = false;
         }
 
         return $result;

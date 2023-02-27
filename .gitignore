@@ -1,4 +1,4 @@
 vendor/
-ssl/
+/ssl/
 .phpunit.result.cache
 composer.lock
