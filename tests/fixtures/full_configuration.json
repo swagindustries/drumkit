@@ -1,0 +1,25 @@
+{
+    "network": {
+        "tls_certificate_file": "ssl/mercure-router-local.pem",
+        "tls_key_file": "ssl/mercure-router-local-key.pem",
+        "tls_port": 443,
+        "unsecured_port": 80,
+        "hosts": ["[::]", "0.0.0.0"],
+        // 45 (seconds) matches the official server configuration
+        "stream_timeout": 45
+    },
+    "security": {
+        "subscriber": {
+            "private_key": "!ChangeThisMercureHubJWTSecretKey!",
+            "algorithm": "sha256"
+        },
+        "publisher": {
+            "private_key": "!ChangeThisMercureHubJWTSecretKey!",
+            "algorithm": "sha256"
+        },
+        "cors": {
+            "origin": ["*"]
+        }
+    },
+    "features": {"active_subscriptions": false},
+}

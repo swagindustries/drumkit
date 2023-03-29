@@ -15,6 +15,9 @@ use Amp\Http\Server\Driver\DefaultHttpDriverFactory;
 use Amp\Http\Server\Middleware\CompressionMiddleware;
 use Amp\Http\Server\SocketHttpServer;
 use Amp\Socket\BindContext;
+use Cspray\Labrador\Http\Cors\ConfigurationBuilder;
+use Cspray\Labrador\Http\Cors\CorsMiddleware;
+use Cspray\Labrador\Http\Cors\SimpleConfigurationLoader;
 use SwagIndustries\MercureRouter\Configuration\Options;
 use function Amp\Http\Server\Middleware\stack;
 use Amp\Socket;
@@ -50,8 +53,16 @@ class Server
 
         $this->enableConnection($httpServer, $tlsContext);
 
+        $corsConfig = ConfigurationBuilder::forOrigins(...$this->options->corsOrigins())
+            ->allowMethods('GET', 'POST')
+            ->withMaxAge(86400)
+            ->doAllowCredentials()
+            ->build();
+        $corsLoader = new SimpleConfigurationLoader($corsConfig);
+
         $httpServer->start(stack(
             $this->options->requestHandlerRouter($httpServer),
+            new CorsMiddleware($corsLoader),
             new CompressionMiddleware(minimumLength: 12)
         ), new DefaultErrorHandler());
 

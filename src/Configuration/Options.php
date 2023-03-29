@@ -15,6 +15,7 @@ namespace SwagIndustries\MercureRouter\Configuration;
 use Amp\Http\Server\Router;
 use Amp\Http\Server\SocketHttpServer;
 use Psr\Log\LoggerInterface;
+use SwagIndustries\MercureRouter\Exception\MissingSecurityConfigurationException;
 use SwagIndustries\MercureRouter\Exception\WrongOptionException;
 use SwagIndustries\MercureRouter\Http\Router\DevRouterFactory;
 use SwagIndustries\MercureRouter\Http\Router\RouterFactory;
@@ -59,6 +60,7 @@ class Options
     // so dependencies are managed here
     private ?RouterFactory $requestHandlerRouterFactory;
     private ?Security $security;
+    private array $corsOrigin;
 
     private LoggerInterface $logger;
 
@@ -76,6 +78,7 @@ class Options
         RouterFactory $requestHandlerRouterFactory = null,
         SecurityOptions $subscriberSecurity = null,
         SecurityOptions $publisherSecurity = null,
+        array $corsOrigin = []
     ) {
         $this->setCertificate($sslCertificateFile);
         $this->setKey($sslKeyFile);
@@ -87,9 +90,22 @@ class Options
         $this->activeSubscriptionEnabled = $activeSubscriptionEnabled;
         $this->logger = $logger ?? DefaultLoggerFactory::createDefaultLogger($devMode);
         $this->requestHandlerRouterFactory = $requestHandlerRouterFactory;
-        $this->subscriberSecurity = $subscriberSecurity ?? new SecurityOptions(self::DEFAULT_SECURITY_KEY, self::DEFAULT_SECURITY_ALG);
-        $this->publisherSecurity = $publisherSecurity ?? new SecurityOptions(self::DEFAULT_SECURITY_KEY, self::DEFAULT_SECURITY_ALG);
         $this->security = null;
+        $this->corsOrigin = $corsOrigin;
+
+        if ($this->devMode) {
+            $this->subscriberSecurity = $subscriberSecurity ?? new SecurityOptions(
+                self::DEFAULT_SECURITY_KEY,
+                self::DEFAULT_SECURITY_ALG
+            );
+            $this->publisherSecurity = $publisherSecurity ?? new SecurityOptions(
+                self::DEFAULT_SECURITY_KEY,
+                self::DEFAULT_SECURITY_ALG
+            );
+        } else {
+            $this->subscriberSecurity = $subscriberSecurity ?? throw new MissingSecurityConfigurationException();
+            $this->publisherSecurity = $publisherSecurity ?? throw new MissingSecurityConfigurationException();
+        }
     }
 
     public function certificate(): string
@@ -146,6 +162,11 @@ class Options
     public function logger(): LoggerInterface
     {
         return $this->logger;
+    }
+
+    public function corsOrigins(): array
+    {
+        return $this->corsOrigin;
     }
 
     private function setKey(string $key): void
