@@ -43,13 +43,7 @@ class Server
         $this->verifiyUserRights($this->options);
 
         $httpDriverFactory = new DefaultHttpDriverFactory($logger, streamTimeout: $this->options->streamTimeout());
-        $httpServer = new SocketHttpServer(
-            $logger,
-            httpDriverFactory: $httpDriverFactory,
-            // This will disable automatic compression configuration
-            // we enable this by hand to have a better control
-            enableCompression: false
-        );
+        $httpServer = new SocketHttpServer($logger, httpDriverFactory: $httpDriverFactory);
 
         $this->enableConnection($httpServer, $tlsContext);
 
@@ -63,6 +57,8 @@ class Server
         $httpServer->start(stack(
             $this->options->requestHandlerRouter($httpServer),
             new CorsMiddleware($corsLoader),
+            // It is not enabled by default in the socket http server
+            // and we have custom settings here.
             new CompressionMiddleware(minimumLength: 12)
         ), new DefaultErrorHandler());
 

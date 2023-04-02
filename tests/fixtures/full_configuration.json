@@ -1,7 +1,7 @@
 {
     "network": {
-        "tls_certificate_file": "ssl/mercure-router-local.pem",
-        "tls_key_file": "ssl/mercure-router-local-key.pem",
+        "tls_certificate_file": "ssl/mercure-router.local.pem",
+        "tls_key_file": "ssl/mercure-router.local-key.pem",
         "tls_port": 443,
         "unsecured_port": 80,
         "hosts": ["[::]", "0.0.0.0"],

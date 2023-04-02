@@ -3,7 +3,9 @@
 namespace SwagIndustries\MercureRouter\Command;
 
 use SwagIndustries\MercureRouter\Configuration\ConfigFileValidator;
+use SwagIndustries\MercureRouter\Configuration\Options;
 use SwagIndustries\MercureRouter\Configuration\OptionsFactory;
+use SwagIndustries\MercureRouter\Server;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Completion\CompletionInput;
@@ -14,6 +16,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'run')]
 class RunCommand extends Command
 {
+    private const OPTION_TLS_KEY = 'tls-key';
+    private const OPTION_TLS_CERT = 'tls-cert';
+    private const OPTION_FEATURE_SUBSCRIPTIONS = 'active-subscriptions';
     protected static $defaultDescription = 'Start Drumkit (run a Mercure server)';
     protected function configure(): void
     {
@@ -42,14 +47,40 @@ class RunCommand extends Command
                     return array_map('is_file', $potentialConfigurationFiles);
                 }
             )
+            ->addOption(
+                self::OPTION_TLS_CERT,
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Path to an TLS certificate used for HTTPS support - overrides the file config'
+            )
+            ->addOption(
+                self::OPTION_TLS_KEY,
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Path to an TLS key used for HTTPS support - overrides the file config'
+            )
+            ->addOption(
+                self::OPTION_FEATURE_SUBSCRIPTIONS,
+                null,
+                InputOption::VALUE_NONE,
+                'Enables the active subscriptions feature'
+            )
+            ->addOption(
+                'dev',
+                null,
+                InputOption::VALUE_NONE,
+                'Run the server in dev mode (shows more explicit errors, logs & run with xdebug)'
+            )
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        // TODO: manage config argument
         $configFile = $input->getOption('config');
-        $config = null;
+        $tlsKey = $input->getOption(self::OPTION_TLS_KEY);
+        $tlsCert = $input->getOption(self::OPTION_TLS_CERT);
+        $devMode = $input->getOption('dev');
+
         if ($configFile !== null) {
             $validator = new ConfigFileValidator();
             $resolvedConfig = $validator->validate(json5_decode(
@@ -58,10 +89,27 @@ class RunCommand extends Command
                 options: \JSON_THROW_ON_ERROR
             ));
 
-            $options = OptionsFactory::fromFile($resolvedConfig);
+            $resolvedConfig['network']['tls_key_file'] = $tlsKey ?? $resolvedConfig['network']['tls_key_file'];
+            $resolvedConfig['network']['tls_certificate_file'] = $tlsCert ?? $resolvedConfig['network']['tls_certificate_file'];
+
+            $options = OptionsFactory::fromFile(
+                config: $resolvedConfig,
+                devMode: $devMode
+            );
+        } else if (!empty($tlsCert) && !empty($tlsKey)) {
+            $options = OptionsFactory::fromCommandOptions(
+                $tlsCert,
+                $tlsKey,
+                $input->getOption(self::OPTION_FEATURE_SUBSCRIPTIONS),
+                $devMode
+            );
+        } else {
+            $output->writeln('<error>You need to provide at least TLS certificates to run the server</error>');
+            return Command::FAILURE;
         }
 
-        // TODO: actually run the server
+        $server = new Server($options);
+        $server->start();
 
         return Command::SUCCESS;
     }
