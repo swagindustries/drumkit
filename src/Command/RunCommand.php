@@ -3,7 +3,6 @@
 namespace SwagIndustries\MercureRouter\Command;
 
 use SwagIndustries\MercureRouter\Configuration\ConfigFileValidator;
-use SwagIndustries\MercureRouter\Configuration\Options;
 use SwagIndustries\MercureRouter\Configuration\OptionsFactory;
 use SwagIndustries\MercureRouter\Server;
 use Symfony\Component\Console\Attribute\AsCommand;
