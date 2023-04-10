@@ -8,7 +8,7 @@ use Symfony\Component\Config\Definition\Processor;
 
 class ConfigFileValidator
 {
-    public static function validate(array $fileContent): array
+    public function validate(array $fileContent): array
     {
         $processor = new Processor();
 

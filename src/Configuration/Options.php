@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace SwagIndustries\MercureRouter\Configuration;
 
+use Amp\Http\Server\HttpServer;
 use Amp\Http\Server\Router;
 use Amp\Http\Server\SocketHttpServer;
 use Psr\Log\LoggerInterface;
@@ -143,9 +144,10 @@ class Options
         return $this->streamTimeout;
     }
 
-    public function requestHandlerRouter(SocketHttpServer $httpServer): Router
+    public function requestHandlerRouter(HttpServer $httpServer): Router
     {
         $hub = new Hub(new InMemoryEventStore());
+
         return $this->getRequestHandlerRouterFactory()->createRouter($httpServer, $hub, $this->getSecurity());
     }
 

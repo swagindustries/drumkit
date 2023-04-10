@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace SwagIndustries\MercureRouter\Configuration;
 
-use Amp\ByteStream\ResourceOutputStream;
 use Amp\Log\ConsoleFormatter;
 use Amp\Log\StreamHandler;
 use Monolog\Logger;

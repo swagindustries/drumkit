@@ -4,7 +4,7 @@ namespace SwagIndustries\MercureRouter\Command;
 
 use SwagIndustries\MercureRouter\Configuration\ConfigFileValidator;
 use SwagIndustries\MercureRouter\Configuration\OptionsFactory;
-use SwagIndustries\MercureRouter\Server;
+use SwagIndustries\MercureRouter\MercureServerFactory;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Completion\CompletionInput;
@@ -19,6 +19,14 @@ class RunCommand extends Command
     private const OPTION_TLS_CERT = 'tls-cert';
     private const OPTION_FEATURE_SUBSCRIPTIONS = 'active-subscriptions';
     protected static $defaultDescription = 'Start Drumkit (run a Mercure server)';
+
+    public function __construct(
+        private $configValidator = new ConfigFileValidator(),
+        private $serverFactory = new MercureServerFactory(),
+    ) {
+        parent::__construct('run');
+    }
+
     protected function configure(): void
     {
         $this
@@ -81,8 +89,7 @@ class RunCommand extends Command
         $devMode = $input->getOption('dev');
 
         if ($configFile !== null) {
-            $validator = new ConfigFileValidator();
-            $resolvedConfig = $validator->validate(json5_decode(
+            $resolvedConfig = $this->configValidator->validate(json5_decode(
                 file_get_contents($configFile),
                 associative: true,
                 options: \JSON_THROW_ON_ERROR
@@ -107,7 +114,7 @@ class RunCommand extends Command
             return Command::FAILURE;
         }
 
-        $server = new Server($options);
+        $server = $this->serverFactory->create($options);
         $server->start();
 
         return Command::SUCCESS;

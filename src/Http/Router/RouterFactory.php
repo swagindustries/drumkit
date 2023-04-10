@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace SwagIndustries\MercureRouter\Http\Router;
 
 use Amp\Http\Server\DefaultErrorHandler;
+use Amp\Http\Server\HttpServer;
 use Amp\Http\Server\Router;
 use Amp\Http\Server\SocketHttpServer;
 use Psr\Log\LoggerInterface;
@@ -34,7 +35,7 @@ class RouterFactory
 
     public function __construct(private bool $activeSubscription = false, private LoggerInterface $logger = new NullLogger()) {}
 
-    public function createRouter(SocketHttpServer $httpServer, Hub $mercure, Security $security): Router
+    public function createRouter(HttpServer $httpServer, Hub $mercure, Security $security): Router
     {
         $router = new Router($httpServer, new DefaultErrorHandler());
         $notFoundController = new NotFoundController();
