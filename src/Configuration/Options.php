@@ -79,7 +79,8 @@ class Options
         RouterFactory $requestHandlerRouterFactory = null,
         SecurityOptions $subscriberSecurity = null,
         SecurityOptions $publisherSecurity = null,
-        array $corsOrigin = []
+        // TODO: fixme (security issue with *)
+        array $corsOrigin = ['*']
     ) {
         $this->setCertificate($sslCertificateFile);
         $this->setKey($sslKeyFile);

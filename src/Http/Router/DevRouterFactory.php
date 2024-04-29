@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace SwagIndustries\MercureRouter\Http\Router;
 
+use Amp\Http\Server\HttpServer;
 use Amp\Http\Server\Router;
-use Amp\Http\Server\SocketHttpServer;
 use SwagIndustries\MercureRouter\Controller\Dev\RedirectToDebuggerController;
 use SwagIndustries\MercureRouter\Controller\Dev\RenderDebuggerController;
 use SwagIndustries\MercureRouter\Mercure\Hub;
@@ -21,7 +21,7 @@ use SwagIndustries\MercureRouter\Security\Security;
 
 final class DevRouterFactory extends RouterFactory
 {
-    public function createRouter(SocketHttpServer $httpServer, Hub $mercure, Security $security): Router
+    public function createRouter(HttpServer $httpServer, Hub $mercure, Security $security): Router
     {
         $this->verbose = true;
         $router = parent::createRouter($httpServer, $mercure, $security);

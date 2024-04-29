@@ -53,8 +53,6 @@ class SubscribeController implements RequestHandler
 
         $response = new Response(HttpStatus::OK,
             [
-                // TODO: fixme (security issue with *)
-                'Access-Control-Allow-Origin' => '*',
                 'Content-Type' => 'text/event-stream',
                 'Cache-Control' => 'no-cache',
                 'X-Accel-Buffering' => 'no'
