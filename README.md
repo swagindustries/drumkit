@@ -28,7 +28,7 @@ Prepare dev environment
 ```
 make configure-dev
 composer install
-# optionally:
+# To avoid SSL issues, use this domain which is the one configured in the makefile
 echo "127.0.0.1	mercure-router.local" | sudo tee --append /etc/host > /dev/null
 ```
 
@@ -37,6 +37,8 @@ Run it with:
 ```
 php bin/main.php
 ```
+
+Then open https://mercure-router.local in your browser.
 
 
 Running in production

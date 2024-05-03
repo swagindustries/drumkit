@@ -26,7 +26,11 @@ class RenderDebuggerController implements RequestHandler
         return new Response(
             HttpStatus::OK,
             ["content-type" => "text/html; charset=utf-8"],
-            file_get_contents(__DIR__ . '/../../../ui/index.html')
+            str_replace(
+                '{{HOST}}',
+                $request->getUri()->getHost(),
+                file_get_contents(__DIR__ . '/../../../ui/index.html')
+            )
         );
     }
 }

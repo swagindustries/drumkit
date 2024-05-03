@@ -67,6 +67,7 @@ class Server
             ->withMaxAge(86400)
             ->doAllowCredentials()
             ->build();
+
         $corsLoader = new SimpleConfigurationLoader($corsConfig);
 
         $httpServer->start(stackMiddleware(
