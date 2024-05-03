@@ -21,7 +21,7 @@ use Psr\Log\NullLogger;
 use SwagIndustries\MercureRouter\Mercure\Hub;
 use SwagIndustries\MercureRouter\Mercure\Update;
 use Symfony\Component\Uid\Uuid;
-use function Amp\Http\Server\FormParser\parseForm;
+use Amp\Http\Server\FormParser\Form;
 
 class PublishController implements RequestHandler
 {
@@ -44,7 +44,7 @@ class PublishController implements RequestHandler
         // TODO: ignore parameters containing wrong values (this is the official server behavior)
         // (add validation but ignore errors instead of failing or weird behavior)
 
-        $form = parseForm($request);
+        $form = Form::fromRequest($request);
 
         $id = $this->getValue($form->getValue('id'), Uuid::v4()->toRfc4122());
 
