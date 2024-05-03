@@ -4,8 +4,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "SwagIndustries\\MercureRouter\\": "src/",
-            "Cspray\\Labrador\\Http\\Cors\\": "deps/http-cors/src/"
+            "SwagIndustries\\MercureRouter\\": "src/"
         }
     },
     "autoload-dev": {
@@ -36,7 +35,8 @@
         "symfony/console": "^6.2",
         "colinodell/json5": "^2.3.0",
         "symfony/config": "^6.2",
-        "nekland/tools":"^2.6.2"
+        "nekland/tools":"^2.6.2",
+        "cspray/labrador-http-cors": "dev-main#cff881f"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",
@@ -49,6 +49,5 @@
         "amphp/phpunit-util": "^3.0.0",
         "phpspec/prophecy-phpunit": "^2.2.0",
         "dg/bypass-finals": "dev-master"
-    },
-    "minimum-stability": "dev"
+    }
 }
