@@ -45,7 +45,7 @@ class SendUpdateTest extends TestCase
 
         $subscription = $subscriber->subscribe();
 
-        [,,$hasReceivedFirstMessage,$hasReceivedSecondMessage] = await([
+        [,,$hasReceivedFirstMessage,$hasReceivedSecondMessage,$hasReceivedThirdMessage] = await([
             $subscription,
             async(function () {
                 $client = new TestClient();
@@ -59,13 +59,20 @@ class SendUpdateTest extends TestCase
                     'topic' => 'https://example.com/books/2.jsonld',
                     'data' => ['message' => 'Event on book 2'],
                 ]);
+
+                $client->sendUpdate([
+                    'topic' => 'https://example.com/books/3.jsonld',
+                    'data' => ['message' => 'Event on book 3'],
+                ], true);
             }),
             $subscriber->received(['message' => 'Event on book 1']),
             $subscriber->received(['message' => 'Event on book 2']),
+            $subscriber->received(['message' => 'Event on book 3']),
         ]);
 
         $this->assertTrue($hasReceivedFirstMessage);
         $this->assertTrue($hasReceivedSecondMessage);
+        $this->assertFalse($hasReceivedThirdMessage);
     }
 
     public function testIDoNotReceiveUpdateIfOutOfScopeImListening(): void
@@ -89,6 +96,30 @@ class SendUpdateTest extends TestCase
                 ]);
             }),
             $subscriber->receivedNothing(),
+        ]);
+
+        $this->assertTrue($receivedNothing);
+    }
+
+    public function testICanReceiveUpdateIfTheTokenAllowsIt()
+    {
+        $subscriber = new TestSubscriber(
+            topic: 'https://example.com/my-private-topic',
+        );
+
+        $subscription = $subscriber->subscribe();
+
+        [,,$receivedNothing] = await([
+            $subscription,
+            async(function () {
+                $client = new TestClient();
+
+                $client->sendUpdate([
+                    'topic' => 'https://example.com/my-private-topic',
+                    'data' => ['message' => 'Hello, World!'],
+                ], isPrivate: true);
+            }),
+            $subscriber->received(['message' => 'Hello, World!']),
         ]);
 
         $this->assertTrue($receivedNothing);

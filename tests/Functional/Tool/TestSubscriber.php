@@ -21,6 +21,7 @@ use function Amp\delay;
 
 class TestSubscriber
 {
+    public const PASSPHRASE_JWT = '!ChangeThisMercureHubJWTSecretKey!';
     private HttpClient $client;
     private string $buffer;
     private Response|null $response = null;
@@ -46,10 +47,13 @@ class TestSubscriber
         $this->timeout = $timeout;
     }
 
-    public function subscribe(): Future
+    public function subscribe(string $token = null): Future
     {
-        return async(function () {
-            $token = (new LcobucciFactory('!ChangeThisMercureHubJWTSecretKey!'))->create(['https://example.com/my-private-topic']);
+        if ($token === null) {
+            $token = (new LcobucciFactory(self::PASSPHRASE_JWT))->create(['https://example.com/my-private-topic']);
+        }
+
+        return async(function () use($token) {
             $request = new Request('https://127.0.0.1/.well-known/mercure?topic='.urlencode($this->topic), 'GET');
             $request->addHeader('Authorization', 'Bearer '.$token);
             $request->setInactivityTimeout($this->timeout);

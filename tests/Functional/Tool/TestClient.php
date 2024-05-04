@@ -14,7 +14,7 @@ use Symfony\Component\Mercure\Jwt\LcobucciFactory;
 
 class TestClient
 {
-    private const PASSPHRASE_JWT = '!ChangeThisMercureHubJWTSecretKey!';
+    public const PASSPHRASE_JWT = '!ChangeThisMercureHubJWTSecretKey!';
     private HttpClient $client;
     public function __construct()
     {
@@ -29,7 +29,7 @@ class TestClient
             ->build();
     }
 
-    public function sendUpdate(array $data, bool $isPrivate = false): int
+    public function sendUpdate(array $data, bool $isPrivate = false, string $token = null): int
     {
         $body = new Form();
         $body->addField('topic', $data['topic']);
@@ -44,8 +44,12 @@ class TestClient
             $body->addField('private','on');
         }
 
+        if (empty($token)) {
+            $token = (new LcobucciFactory(self::PASSPHRASE_JWT))->create();
+        }
+
         $request = new Request('https://127.0.0.1/.well-known/mercure', 'POST', $body);
-        $request->addHeader('Authorization', 'Bearer '.(new LcobucciFactory(self::PASSPHRASE_JWT))->create());
+        $request->addHeader('Authorization', 'Bearer '.$token);
         $response = $this->client->request($request);
 
         return $response->getStatus();
