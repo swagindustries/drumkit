@@ -34,7 +34,7 @@ class TestClient
         $body = new Form();
         $body->addField('topic', $data['topic']);
 
-        $eventContent=$data['data'];
+        $eventContent = $data['data'];
         if (is_array($eventContent)) {
             $eventContent = json_encode($eventContent, flags: JSON_THROW_ON_ERROR);
         }

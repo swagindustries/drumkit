@@ -17,7 +17,14 @@ final class Privacy
         if ($update->private) {
             return
                 !empty(array_intersect($subscriber->privateTopics, $update->topics))
-                && !empty(array_intersect($subscriber->topics, $update->topics));
+                && (
+                    !empty(array_intersect($subscriber->topics, $update->topics))
+                    || in_array('*', $subscriber->topics, true)
+                );
+        }
+
+        if (in_array('*', $subscriber->topics, true)) {
+            return true;
         }
 
         return !empty(array_intersect($subscriber->topics, $update->topics));

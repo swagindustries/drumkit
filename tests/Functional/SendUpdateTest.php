@@ -37,6 +37,37 @@ class SendUpdateTest extends TestCase
         $this->assertTrue($hasReceivedMessage);
     }
 
+    public function testSubscribeOnAnything()
+    {
+        $subscriber = new TestSubscriber(
+            topic: '*',
+        );
+
+        $subscription = $subscriber->subscribe();
+
+        [,,$hasReceivedFirstMessage,$hasReceivedSecondMessage] = await([
+            $subscription,
+            async(function () {
+                $client = new TestClient();
+
+                $client->sendUpdate([
+                    'topic' => 'https://example.com/books/1.jsonld',
+                    'data' => ['message' => 'Event on book 1'],
+                ]);
+
+                $client->sendUpdate([
+                    'topic' => 'https://example.com/books/2.jsonld',
+                    'data' => ['message' => 'Event on book 2'],
+                ]);
+            }),
+            $subscriber->received(['message' => 'Event on book 1']),
+            $subscriber->received(['message' => 'Event on book 2']),
+        ]);
+
+        $this->assertTrue($hasReceivedFirstMessage);
+        $this->assertTrue($hasReceivedSecondMessage);
+    }
+
     public function testIDoNotReceiveUpdateIfOutOfScopeImListening(): void
     {
         $subscriber = new TestSubscriber(
