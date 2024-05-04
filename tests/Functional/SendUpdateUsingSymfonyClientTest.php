@@ -1,6 +1,6 @@
 <?php
 
-namespace Functional;
+namespace SwagIndustries\MercureRouter\Test\Functional;
 
 use PHPUnit\Framework\TestCase;
 
