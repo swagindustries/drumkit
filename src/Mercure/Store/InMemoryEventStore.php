@@ -32,18 +32,19 @@ class InMemoryEventStore implements EventStoreInterface
         $this->logger = $logger ?? new NullLogger();
     }
 
-    public function store(Update $update)
+    public function store(Update $update): void
     {
-        if (count($this->store) >= $this->size) {
-            $removed = array_shift($this->store);
-            $this->logger->debug('Remove update', ['id' => $removed->id]);
+        if ($this->store->count() >= $this->size) {
+            $toBeRemoved = $this->store->first();
+            $this->store->remove($toBeRemoved->key);
+            $this->logger->debug('Remove update', ['id' => $toBeRemoved->value->id]);
         }
 
         $this->logger->debug('Store new update', ['id' => $update->id]);
         $this->store->put($update->id, $update);
     }
 
-    public function reconcile(string $lastEventId)
+    public function reconcile(string $lastEventId): array
     {
         $sendEvents = $lastEventId === self::EARLIEST;
 

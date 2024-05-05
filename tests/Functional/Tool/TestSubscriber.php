@@ -1,8 +1,16 @@
 <?php
 
+/**
+ * This file is a part of mercure-router-php package.
+ *
+ * (c) Swag Industries <nek.dev@gmail.com>
+ *
+ * For the full license, take a look to the LICENSE file
+ * on the root directory of this project
+ */
+
 namespace SwagIndustries\MercureRouter\Test\Functional\Tool;
 
-use Amp\Cancellation;
 use Amp\CancelledException;
 use Amp\DeferredCancellation;
 use Amp\Future;
@@ -12,7 +20,6 @@ use Amp\Http\Client\HttpClient;
 use Amp\Http\Client\HttpClientBuilder;
 use Amp\Http\Client\Request;
 use Amp\Http\Client\Response;
-use Amp\Pipeline\DisposedException;
 use Amp\Socket\ClientTlsContext;
 use Amp\Socket\ConnectContext;
 use Symfony\Component\Mercure\Jwt\LcobucciFactory;

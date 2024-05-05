@@ -13,9 +13,9 @@ class InMemoryEventStoreTest extends AsyncTestCase
         $event1 = new Update(['some-topic'], 'message data', true, '1', null);
         $event2 = new Update(['some-topic'], 'message data 2', true, '2', null);
         $store = new InMemoryEventStore();
-        yield $store->store($event1);
-        yield $store->store($event2);
-        $reconciliation = yield $store->reconcile('2');
+        $store->store($event1);
+        $store->store($event2);
+        $reconciliation = $store->reconcile('2');
 
         $this->assertEquals([$event2], $reconciliation);
     }
