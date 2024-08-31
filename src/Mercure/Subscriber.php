@@ -20,16 +20,17 @@ class Subscriber
     /** @var string[] */
     public readonly array $topics;
     public readonly array $payload;
-
     public readonly Queue $emitter;
+    public readonly ?string $lastEventId;
 
-    public function __construct(array $topics, array $privateTopics = [], array $payload = [])
+    public function __construct(array $topics, array $privateTopics = [], array $payload = [], ?string $lastEventId = null)
     {
         $this->emitter = new Queue();
         $this->id = Uuid::v4();
         $this->topics = $topics;
         $this->privateTopics = $privateTopics;
         $this->payload = $payload;
+        $this->lastEventId = $lastEventId;
     }
 
     public function dispatch(Update $update)

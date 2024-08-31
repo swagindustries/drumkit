@@ -46,7 +46,7 @@ class SendUpdateTest extends TestCase
         $this->assertTrue($hasReceivedMessage);
     }
 
-    public function testSubscribeOnAnything()
+    public function testSubscribeOnAnything(): void
     {
         $subscriber = new TestSubscriber(
             topic: '*',
@@ -110,7 +110,7 @@ class SendUpdateTest extends TestCase
         $this->assertTrue($receivedNothing);
     }
 
-    public function testICanReceiveUpdateIfTheTokenAllowsIt()
+    public function testICanReceiveUpdateIfTheTokenAllowsIt(): void
     {
         $subscriber = new TestSubscriber(
             topic: 'https://example.com/my-private-topic',

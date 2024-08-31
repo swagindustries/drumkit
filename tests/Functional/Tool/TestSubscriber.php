@@ -22,6 +22,7 @@ use Amp\Http\Client\Request;
 use Amp\Http\Client\Response;
 use Amp\Socket\ClientTlsContext;
 use Amp\Socket\ConnectContext;
+use SwagIndustries\MercureRouter\Controller\SubscribeController;
 use Symfony\Component\Mercure\Jwt\LcobucciFactory;
 use function Amp\async;
 use function Amp\delay;
@@ -54,18 +55,21 @@ class TestSubscriber
         $this->timeout = $timeout;
     }
 
-    public function subscribe(string $token = null): Future
+    public function subscribe(string $token = null, string $lastEventId = null): Future
     {
         if ($token === null) {
             $token = (new LcobucciFactory(self::PASSPHRASE_JWT))->create(['https://example.com/my-private-topic']);
         }
 
-        return async(function () use($token) {
+        return async(function () use($token, $lastEventId) {
             $request = new Request('https://127.0.0.1/.well-known/mercure?topic='.urlencode($this->topic), 'GET');
             $request->addHeader('Authorization', 'Bearer '.$token);
             $request->setInactivityTimeout($this->timeout);
             $request->setTransferTimeout($this->timeout);
             $request->setTcpConnectTimeout($this->timeout);
+            if ($lastEventId !== null) {
+                $request->addHeader(SubscribeController::LAST_EVENT_ID_HEADER, $lastEventId);
+            }
 
             $this->cancel = new DeferredCancellation();
             $this->response = $this->client->request($request, $this->cancel->getCancellation());

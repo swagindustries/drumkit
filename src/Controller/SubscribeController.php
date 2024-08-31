@@ -26,6 +26,7 @@ use Symfony\Component\Uid\Uuid;
 
 class SubscribeController implements RequestHandler
 {
+    public const LAST_EVENT_ID_HEADER = 'Last-Event-ID';
     use SubscriptionNormalizerTrait;
     public function __construct(
         private Hub $mercure,
@@ -36,6 +37,7 @@ class SubscribeController implements RequestHandler
     {
         /** @var array{topic?: array|string} $query */
         $query = QueryParser::parse($request->getUri()->getQuery());
+        $lastEventId = $request->getHeader('Last-Event-Id');
 
         /** @var array $jwtContent */
         $jwtContent = $request->getAttribute(Security::ATTRIBUTE_JWT_PAYLOAD)['mercure'] ?? [];
@@ -43,7 +45,8 @@ class SubscribeController implements RequestHandler
         $subscriber = new Subscriber(
             (array) $query['topic'],
             $this->validateAndReturnTopics((array) ($jwtContent['subscribe'] ?? [])),
-            (array) ($jwtContent['payload'] ?? [])
+            (array) ($jwtContent['payload'] ?? []),
+            $lastEventId
         );
 
         $this->logger->debug("New subscriber with query '{$request->getUri()->getQuery()}'");

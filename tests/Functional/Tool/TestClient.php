@@ -17,6 +17,7 @@ use Amp\Http\Client\Form;
 use Amp\Http\Client\HttpClient;
 use Amp\Http\Client\HttpClientBuilder;
 use Amp\Http\Client\Request;
+use Amp\Http\Client\Response;
 use Amp\Socket\ClientTlsContext;
 use Amp\Socket\ConnectContext;
 use Symfony\Component\Mercure\Jwt\LcobucciFactory;
@@ -38,10 +39,13 @@ class TestClient
             ->build();
     }
 
-    public function sendUpdate(array $data, bool $isPrivate = false, string $token = null): int
+    public function sendUpdate(array $data, bool $isPrivate = false, string $token = null): Response
     {
         $body = new Form();
         $body->addField('topic', $data['topic']);
+        if (isset($data['id'])) {
+            $body->addField('id', $data['id']);
+        }
 
         $eventContent = $data['data'];
         if (is_array($eventContent)) {
@@ -61,6 +65,6 @@ class TestClient
         $request->addHeader('Authorization', 'Bearer '.$token);
         $response = $this->client->request($request);
 
-        return $response->getStatus();
+        return $response;
     }
 }

@@ -60,6 +60,9 @@ class Hub
     public function addSubscriber(Subscriber $subscriber): void
     {
         $this->subscribers[] = $subscriber;
+        if ($subscriber->lastEventId !== null) {
+            $this->reconciliate($subscriber, $subscriber->lastEventId);
+        }
     }
 
     public function removeSubscriber(Subscriber $subscriberToRemove): void
@@ -75,5 +78,13 @@ class Hub
     public function getLastEventID(): LastEventID
     {
         return $this->store->getLastEventID();
+    }
+
+    private function reconciliate(Subscriber $subscriber, string $lastEventID)
+    {
+        $events = $this->store->reconcile($lastEventID);
+        foreach($events as $event) {
+            $subscriber->dispatch($event);
+        }
     }
 }
