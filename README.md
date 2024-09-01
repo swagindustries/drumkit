@@ -12,12 +12,12 @@ This project is currently a work in progress, here is a list of the rest to be d
 - [ ] Active subscriptions API
 - [ ] Security: JWS verifications (on all endpoints)
 - [ ] Security: CORS configuration (on all endpoints)
-- [ ] Configuration by file
+- [x] Configuration by file
 - [ ] Test suite
 - [ ] Docker image
 - [ ] Benchmark
 - [x] Use new amphp version (with fibers)
-- [ ] Header `Last-Event-ID` https://mercure.rocks/spec#reconciliation
+- [x] Header `Last-Event-ID` https://mercure.rocks/spec#reconciliation
 - [x] Redact help modal in UI
 - [ ] Fix all TODO remaining in the code
 - [ ] Fix dependencies to something stable
@@ -35,7 +35,7 @@ echo "127.0.0.1	mercure-router.local" | sudo tee --append /etc/host > /dev/null
 Run it with:
 
 ```
-php bin/main.php
+./bin/drumkit --tls-cert=ssl/mercure-router.local.pem --tls-key=ssl/mercure-router.local-key.pem --security-publisher-key='!ChangeThisMercureHubJWTSecretKey!' --security-subscriber-key='!ChangeThisMercureHubJWTSecretKey!' [--dev]
 ```
 
 Then open https://mercure-router.local in your browser.

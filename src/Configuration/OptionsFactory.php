@@ -2,6 +2,7 @@
 
 namespace SwagIndustries\MercureRouter\Configuration;
 
+use League\Uri\Idna\Option;
 use Nekland\Tools\StringTools;
 use Psr\Log\LoggerInterface;
 
@@ -38,13 +39,40 @@ class OptionsFactory
     public static function fromCommandOptions(
         string $tlsCert,
         string $tlsKey,
+        ?string $subKey,
+        ?string $subAlg,
+        ?string $pubKey,
+        ?string $pubAlg,
         bool $activeSubscriptions,
         bool $devMode
     ): Options {
         $tlsKey = self::resolvePath($tlsKey);
         $tlsCert = self::resolvePath($tlsCert);
+        $publisherSecurity = null;
+        $subscriberSecurity = null;
 
-        return new Options($tlsCert, $tlsKey, activeSubscriptionEnabled: $activeSubscriptions, devMode: $devMode);
+        if ($subKey !== null) {
+            $subscriberSecurity = new SecurityOptions(
+                $subKey,
+                $subAlg ?? Options::DEFAULT_SECURITY_ALG
+            );
+        }
+
+        if ($pubKey !== null) {
+            $publisherSecurity = $publisherSecurity ?? new SecurityOptions(
+                $pubKey,
+                $pubAlg ?? Options::DEFAULT_SECURITY_ALG
+            );
+        }
+
+        return new Options(
+            $tlsCert,
+            $tlsKey,
+            activeSubscriptionEnabled: $activeSubscriptions,
+            devMode: $devMode,
+            subscriberSecurity: $subscriberSecurity,
+            publisherSecurity:  $publisherSecurity,
+        );
     }
 
     private static function resolvePath(string $path): string

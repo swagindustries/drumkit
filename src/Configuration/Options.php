@@ -33,7 +33,7 @@ use SwagIndustries\MercureRouter\Mercure\Store\InMemoryEventStore;
 class Options
 {
     private const DEFAULT_SECURITY_KEY = '!ChangeThisMercureHubJWTSecretKey!';
-    private const DEFAULT_SECURITY_ALG = Signer::SHA_256;
+    public const DEFAULT_SECURITY_ALG = Signer::SHA_256;
 
     // Debug mode (enable a UI to test mercure features & debug logging)
     private bool $devMode;

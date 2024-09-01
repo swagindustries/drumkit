@@ -3,6 +3,7 @@
 namespace SwagIndustries\MercureRouter\Command;
 
 use SwagIndustries\MercureRouter\Configuration\ConfigFileValidator;
+use SwagIndustries\MercureRouter\Configuration\Options;
 use SwagIndustries\MercureRouter\Configuration\OptionsFactory;
 use SwagIndustries\MercureRouter\MercureServerFactory;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -18,11 +19,15 @@ class RunCommand extends Command
     private const OPTION_TLS_KEY = 'tls-key';
     private const OPTION_TLS_CERT = 'tls-cert';
     private const OPTION_FEATURE_SUBSCRIPTIONS = 'active-subscriptions';
+    private const OPTION_SECURITY_PUBLISHER_ALG = 'security-publisher-algorithm';
+    private const OPTION_SECURITY_PUBLISHER_KEY = 'security-publisher-key';
+    private const OPTION_SECURITY_SUBSCRIBER_ALG = 'security-subscriber-algorithm';
+    private const OPTION_SECURITY_SUBSCRIBER_KEY = 'security-subscriber-key';
     protected static $defaultDescription = 'Start Drumkit (run a Mercure server)';
 
     public function __construct(
-        private $configValidator = new ConfigFileValidator(),
-        private $serverFactory = new MercureServerFactory(),
+        private ConfigFileValidator $configValidator = new ConfigFileValidator(),
+        private MercureServerFactory $serverFactory = new MercureServerFactory(),
     ) {
         parent::__construct('run');
     }
@@ -57,13 +62,13 @@ class RunCommand extends Command
             ->addOption(
                 self::OPTION_TLS_CERT,
                 null,
-                InputOption::VALUE_OPTIONAL,
+                InputOption::VALUE_REQUIRED,
                 'Path to an TLS certificate used for HTTPS support - overrides the file config'
             )
             ->addOption(
                 self::OPTION_TLS_KEY,
                 null,
-                InputOption::VALUE_OPTIONAL,
+                InputOption::VALUE_REQUIRED,
                 'Path to an TLS key used for HTTPS support - overrides the file config'
             )
             ->addOption(
@@ -71,6 +76,30 @@ class RunCommand extends Command
                 null,
                 InputOption::VALUE_NONE,
                 'Enables the active subscriptions feature'
+            )
+            ->addOption(
+                self::OPTION_SECURITY_PUBLISHER_KEY,
+                'sec-pub-key',
+                InputOption::VALUE_REQUIRED,
+                'Private key for publisher JWT validation',
+            )
+            ->addOption(
+                self::OPTION_SECURITY_PUBLISHER_ALG,
+                'sec-pub-alg',
+                InputOption::VALUE_REQUIRED,
+                'Security algorithm to be use for JWT encryption for publishing. Defaults to "' . Options::DEFAULT_SECURITY_ALG->value . '"'
+            )
+            ->addOption(
+                self::OPTION_SECURITY_SUBSCRIBER_KEY,
+                'sec-sub-key',
+                InputOption::VALUE_REQUIRED,
+                'Private key for subscriber JWT validation',
+            )
+            ->addOption(
+                self::OPTION_SECURITY_SUBSCRIBER_ALG,
+                'sec-sub-alg',
+                InputOption::VALUE_REQUIRED,
+                'Security algorithm to be use for JWT encryption for subscribing. Defaults to "' . Options::DEFAULT_SECURITY_ALG->value . '"'
             )
             ->addOption(
                 'dev',
@@ -106,11 +135,15 @@ class RunCommand extends Command
             $options = OptionsFactory::fromCommandOptions(
                 $tlsCert,
                 $tlsKey,
+                $input->getOption(self::OPTION_SECURITY_SUBSCRIBER_KEY),
+                $input->getOption(self::OPTION_SECURITY_SUBSCRIBER_ALG),
+                $input->getOption(self::OPTION_SECURITY_PUBLISHER_KEY),
+                $input->getOption(self::OPTION_SECURITY_PUBLISHER_ALG),
                 $input->getOption(self::OPTION_FEATURE_SUBSCRIPTIONS),
                 $devMode
             );
         } else {
-            $output->writeln('<error>You need to provide at least TLS certificates to run the server</error>');
+            $output->writeln('<error>You need to provide at least TLS certificates to run the server. Run command `drumkit --help` to learn more.</error>');
             return Command::FAILURE;
         }
 
