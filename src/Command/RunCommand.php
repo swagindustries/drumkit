@@ -140,7 +140,7 @@ class RunCommand extends Command
                 $input->getOption(self::OPTION_SECURITY_PUBLISHER_KEY),
                 $input->getOption(self::OPTION_SECURITY_PUBLISHER_ALG),
                 $input->getOption(self::OPTION_FEATURE_SUBSCRIPTIONS),
-                $devMode
+                devMode: $devMode
             );
         } else {
             $output->writeln('<error>You need to provide at least TLS certificates to run the server. Run command `drumkit --help` to learn more.</error>');

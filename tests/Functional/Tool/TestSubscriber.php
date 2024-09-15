@@ -72,8 +72,8 @@ class TestSubscriber
             }
 
             $this->cancel = new DeferredCancellation();
-            $this->response = $this->client->request($request, $this->cancel->getCancellation());
             try {
+                $this->response = $this->client->request($request, $this->cancel->getCancellation());
                 while (null !== $chunk = $this->response->getBody()->read()) {
                     $this->buffer .= $chunk;
                 }

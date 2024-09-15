@@ -9,7 +9,7 @@ Work in progress
 This project is currently a work in progress, here is a list of the rest to be done:
 
 - [x] Active subscriptions events
-- [ ] Active subscriptions API
+- [x] Active subscriptions API
 - [ ] Security: JWS verifications (on all endpoints)
 - [ ] Security: CORS configuration (on all endpoints)
 - [x] Configuration by file
@@ -64,12 +64,16 @@ MERCURE_SUBSCRIBER_JWT_KEY='!ChangeMe!' \
 
 ```
 docker run \
-    -e MERCURE_PUBLISHER_JWT_KEY='!ChangeThisMercureHubJWTSecretKey!' \                                               
-    -e MERCURE_SUBSCRIBER_JWT_KEY='!ChangeThisMercureHubJWTSecretKey!' \              
-    -p 80:80 \                                                
+    -e MERCURE_PUBLISHER_JWT_KEY='!ChangeThisMercureHubJWTSecretKey!' \
+    -e MERCURE_SUBSCRIBER_JWT_KEY='!ChangeThisMercureHubJWTSecretKey!' \
+    -e MERCURE_EXTRA_DIRECTIVES='demo\
+subscriptions'\
+    -p 80:80 \
     -p 443:443 \
-    dunglas/mercure caddy run -config /etc/caddy/Caddyfile.dev
+    dunglas/mercure
 ```
+
+And go to https://localhost/.well-known/mercure/ui/
 
 Backward compatibility promise
 ------------------------------

@@ -11,6 +11,7 @@
 
 namespace SwagIndustries\MercureRouter\Test\Functional\Tool;
 
+use Amp\Future;
 use Amp\Http\Client\Connection\DefaultConnectionFactory;
 use Amp\Http\Client\Connection\UnlimitedConnectionPool;
 use Amp\Http\Client\Form;
@@ -20,7 +21,10 @@ use Amp\Http\Client\Request;
 use Amp\Http\Client\Response;
 use Amp\Socket\ClientTlsContext;
 use Amp\Socket\ConnectContext;
+use Nekland\Tools\StringTools;
 use Symfony\Component\Mercure\Jwt\LcobucciFactory;
+use function Amp\async;
+use function Amp\delay;
 
 class TestClient
 {
@@ -66,5 +70,31 @@ class TestClient
         $response = $this->client->request($request);
 
         return $response;
+    }
+
+    /**
+     * @param callable(string, Response=): bool $expectation
+     * @return Future<array{0: Response, 1: string}>
+     */
+    public function get(string $url, callable $expectation): Future
+    {
+        return async(function () use ($url, $expectation) {
+            $timeout = 0;
+            do {
+                if (str_contains($url, '/.well-known/mercure')) {
+                    $url = StringTools::removeStart($url, '/.well-known/mercure');
+                }
+                $response = $this->client->request(new Request('https://127.0.0.1/.well-known/mercure'. $url, 'GET'));
+                $content = $response->getBody()->buffer();
+                if ($expectation($content, $response)) {
+                    return [$response, $content];
+                }
+                delay(0.1);
+                $timeout += 100;
+
+            } while($timeout < 1000);
+
+            return [$response, $content];
+        });
     }
 }

@@ -54,7 +54,7 @@ class GetSubscriptionsController implements RequestHandler
             HttpStatus::OK,
             [
                 // TODO: fixme (security issue with *)
-                'Access-Control-Allow-Origin' => '*',
+                //'Access-Control-Allow-Origin' => '*',
                 // Content-Type is a requirement from the spec
                 // "The web API MUST set the `Content-Type` HTTP header to `application/ld+json`."
                 // https://mercure.rocks/spec#subscription-api

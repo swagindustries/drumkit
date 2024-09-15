@@ -40,6 +40,22 @@ class RouterFactory
         $notFoundController = new NotFoundController();
         $router->setFallback($notFoundController);
 
+        if ($this->activeSubscription) {
+            // TODO: add security (subscriptions are private)
+            // To access to the URLs exposed by the web API, clients MUST be authorized according to the rules defined in
+            // authorization. The requested URL MUST match at least one of the topic selectors provided in the
+            // `mercure.subscribe` key of the JWS.
+            $router->addRoute('GET', Hub::MERCURE_PATH . '/subscriptions/{topic}/{subscriber}', stackMiddleware(
+                new GetSubscriptionsController($mercure, $notFoundController)
+            ));
+            $router->addRoute('GET', Hub::MERCURE_PATH . '/subscriptions/{topic}', stackMiddleware(
+                new GetSubscriptionsController($mercure, $notFoundController)
+            ));
+            $router->addRoute('GET', Hub::MERCURE_PATH . '/subscriptions', stackMiddleware(
+                new GetSubscriptionsController($mercure, $notFoundController)
+            ));
+        }
+
         $router->addRoute('POST', Hub::MERCURE_PATH, stackMiddleware(
             new PublishController(
                 $mercure,
@@ -55,24 +71,6 @@ class RouterFactory
                 $this->logger,
             ),
             new SubscribeJwtAuthenticationMiddleware($security)
-        ));
-
-        if (!$this->activeSubscription) {
-            return $router;
-        }
-
-        // TODO: add security (subscriptions are private)
-        // To access to the URLs exposed by the web API, clients MUST be authorized according to the rules defined in
-        // authorization. The requested URL MUST match at least one of the topic selectors provided in the
-        // `mercure.subscribe` key of the JWS.
-        $router->addRoute('GET', Hub::MERCURE_PATH . '/subscriptions', stackMiddleware(
-            new GetSubscriptionsController($mercure, $notFoundController)
-        ));
-        $router->addRoute('GET', Hub::MERCURE_PATH . '/subscriptions/{topic}', stackMiddleware(
-            new GetSubscriptionsController($mercure, $notFoundController)
-        ));
-        $router->addRoute('GET', Hub::MERCURE_PATH . '/subscriptions/{topic}/{subscriber}', stackMiddleware(
-            new GetSubscriptionsController($mercure, $notFoundController)
         ));
 
         return $router;
