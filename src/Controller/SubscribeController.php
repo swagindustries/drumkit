@@ -17,6 +17,7 @@ use Amp\Http\Server\RequestHandler;
 use Amp\Http\Server\Response;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use SwagIndustries\MercureRouter\Controller\Subscription\SubscriptionNormalizerTrait;
 use SwagIndustries\MercureRouter\Http\QueryParser;
 use SwagIndustries\MercureRouter\Mercure\Hub;
 use SwagIndustries\MercureRouter\Mercure\Subscriber;
@@ -39,7 +40,7 @@ class SubscribeController implements RequestHandler
         $query = QueryParser::parse($request->getUri()->getQuery());
         $lastEventId = $request->getHeader('Last-Event-Id');
 
-        /** @var array $jwtContent */
+        /** @var array{subscribe: array|string|null, payload?: array} $jwtContent */
         $jwtContent = $request->getAttribute(Security::ATTRIBUTE_JWT_PAYLOAD)['mercure'] ?? [];
 
         $subscriber = new Subscriber(

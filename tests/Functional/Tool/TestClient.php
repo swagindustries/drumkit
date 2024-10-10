@@ -76,15 +76,22 @@ class TestClient
      * @param callable(string, Response=): bool $expectation
      * @return Future<array{0: Response, 1: string}>
      */
-    public function get(string $url, callable $expectation): Future
+    public function get(string $url, callable $expectation, ?string $token = null): Future
     {
-        return async(function () use ($url, $expectation) {
+        return async(function () use ($url, $expectation, $token) {
             $timeout = 0;
             do {
                 if (str_contains($url, '/.well-known/mercure')) {
                     $url = StringTools::removeStart($url, '/.well-known/mercure');
                 }
-                $response = $this->client->request(new Request('https://127.0.0.1/.well-known/mercure'. $url, 'GET'));
+
+
+                $request = new Request('https://127.0.0.1/.well-known/mercure'. $url, 'GET');
+                if ($token) {
+                    $request->addHeader('Authorization', 'Bearer '.$token);
+                }
+
+                $response = $this->client->request($request);
                 $content = $response->getBody()->buffer();
                 if ($expectation($content, $response)) {
                     return [$response, $content];

@@ -60,7 +60,7 @@ class Security
         $config = $this->configFactory->createJwtConfigurationFromMercureOptions($options);
 
         try {
-            /** @var Plain|Token $token */
+            /** @var Plain $token */
             $token = $config->parser()->parse($requestToken);
             Assert::isInstanceOf($token, Plain::class);
             $request->setAttribute(self::ATTRIBUTE_JWT_PAYLOAD, $token->claims()->all());

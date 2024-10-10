@@ -1,6 +1,6 @@
 <?php
 
-namespace SwagIndustries\MercureRouter\Controller;
+namespace SwagIndustries\MercureRouter\Controller\Subscription;
 
 use SwagIndustries\MercureRouter\Mercure\Hub;
 use SwagIndustries\MercureRouter\Mercure\Subscriber;
