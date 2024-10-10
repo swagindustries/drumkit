@@ -4,6 +4,7 @@
 configure-dev: ## Prepare dev environment
 	mkcert -install
 	mkcert -cert-file ssl/mercure-router.local.pem -key-file ssl/mercure-router.local-key.pem "mercure-router.local"
+	@echo "Please add mercure-router.local to your /etc/hosts file to complete the installation!"
 .PHONY: configure
 
 
