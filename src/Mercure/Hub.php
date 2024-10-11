@@ -10,6 +10,7 @@
 
 namespace SwagIndustries\MercureRouter\Mercure;
 
+use Ds\Deque;
 use SwagIndustries\MercureRouter\Mercure\Store\EventStoreInterface;
 use SwagIndustries\MercureRouter\Mercure\Store\LastEventID;
 
@@ -17,15 +18,15 @@ class Hub
 {
     public const MERCURE_PATH = '/.well-known/mercure';
 
-    /** @var Subscriber[] */
-    private array $subscribers; // @todo: perf opti: using another thing than php array
+    /** @var $subscriber<Subscriber> */
+    private Deque $subscribers;
     /** @var Subscriber[] */
     private Privacy $privacy;
 
     public function __construct(private EventStoreInterface $store, Privacy $privacy = null)
     {
         $this->privacy = $privacy ?? new Privacy;
-        $this->subscribers = [];
+        $this->subscribers = new Deque();
     }
 
     public function publish(Update $update)
@@ -39,9 +40,9 @@ class Hub
     }
 
     /**
-     * @return Subscriber[]
+     * @return Deque<Subscriber>
      */
-    public function getSubscribers(): array
+    public function getSubscribers(): Deque
     {
         return $this->subscribers;
     }
@@ -59,7 +60,7 @@ class Hub
 
     public function addSubscriber(Subscriber $subscriber): void
     {
-        $this->subscribers[] = $subscriber;
+        $this->subscribers->push($subscriber);
         if ($subscriber->lastEventId !== null) {
             $this->reconciliate($subscriber, $subscriber->lastEventId);
         }
@@ -69,7 +70,7 @@ class Hub
     {
         foreach ($this->subscribers as $key => $subscriber) {
             if ($subscriber === $subscriberToRemove) {
-                unset($this->subscribers[$key]);
+                $this->subscribers->remove($key);
                 break;
             }
         }
