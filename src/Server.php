@@ -80,7 +80,7 @@ class Server
         $signal = trapSignal([\SIGINT, \SIGTERM]);
         $logger->info(sprintf("Received signal %d, stopping HTTP server", $signal));
 
-        // Todo: complete all subscriptions
+        $this->options->getHub()->stop();
 
         $httpServer->stop();
     }

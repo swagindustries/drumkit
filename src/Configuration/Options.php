@@ -59,6 +59,7 @@ class Options
 
     // No dependency injection in this project
     // so dependencies are managed here
+    private ?Hub $hub;
     private ?RouterFactory $requestHandlerRouterFactory;
     private ?Security $security;
     private array $corsOrigin;
@@ -94,6 +95,7 @@ class Options
         $this->requestHandlerRouterFactory = $requestHandlerRouterFactory;
         $this->security = null;
         $this->corsOrigin = $corsOrigin;
+        $this->hub = null;
 
         if ($this->devMode) {
             $this->subscriberSecurity = $subscriberSecurity ?? new SecurityOptions(
@@ -147,9 +149,16 @@ class Options
 
     public function requestHandlerRouter(HttpServer $httpServer): Router
     {
-        $hub = new Hub(new InMemoryEventStore());
+        return $this->getRequestHandlerRouterFactory()->createRouter($httpServer, $this->getHub(), $this->getSecurity());
+    }
 
-        return $this->getRequestHandlerRouterFactory()->createRouter($httpServer, $hub, $this->getSecurity());
+    public function getHub(): Hub
+    {
+        if ($this->hub === null) {
+            $this->hub = new Hub(new InMemoryEventStore());
+        }
+
+        return $this->hub;
     }
 
     public function subscriberSecurity(): SecurityOptions

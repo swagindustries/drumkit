@@ -80,6 +80,13 @@ class Hub
         return $this->store->getLastEventID();
     }
 
+    public function stop(): void
+    {
+        foreach($this->subscribers as $subscriber) {
+            $subscriber->emitter->complete();
+        }
+    }
+
     private function reconciliate(Subscriber $subscriber, string $lastEventID)
     {
         $events = $this->store->reconcile($lastEventID);

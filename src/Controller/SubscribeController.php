@@ -64,9 +64,11 @@ class SubscribeController implements RequestHandler
             new ReadableIterableStream($subscriber->emitter->iterate())
         );
         $response->onDispose(function () use ($subscriber) {
-            $this->mercure->removeSubscriber($subscriber);
-            $this->publishSubscriptions($subscriber, false);
-            $subscriber->emitter->complete();
+            if (!$subscriber->emitter->isComplete()) {
+                $this->mercure->removeSubscriber($subscriber);
+                $this->publishSubscriptions($subscriber, false);
+                $subscriber->emitter->complete();
+            }
         });
 
         return $response;
