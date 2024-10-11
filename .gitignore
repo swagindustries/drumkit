@@ -1,4 +1,5 @@
 vendor/
-/ssl/
+/ssl/mercure-router.local-key.pem
+/ssl/mercure-router.local.pem
 .phpunit.result.cache
 composer.lock

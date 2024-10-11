@@ -11,7 +11,7 @@ This project is currently a work in progress, here is a list of the rest to be d
 - [x] Active subscriptions events
 - [x] Active subscriptions API
 - [ ] Security: JWS verifications (on all endpoints)
-- [ ] Security: CORS configuration (on all endpoints)
+- [x] Security: CORS configuration (on all endpoints)
 - [x] Configuration by file
 - [ ] Test suite
 - [ ] Docker image

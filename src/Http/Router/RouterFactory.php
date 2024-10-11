@@ -45,10 +45,6 @@ class RouterFactory
         $subscribeSecurityMiddleware = new SubscribeJwtAuthenticationMiddleware($security);
 
         if ($this->activeSubscription) {
-            // TODO: add security (subscriptions are private)
-            // To access to the URLs exposed by the web API, clients MUST be authorized according to the rules defined in
-            // authorization. The requested URL MUST match at least one of the topic selectors provided in the
-            // `mercure.subscribe` key of the JWS.
             $router->addRoute('GET', Hub::MERCURE_PATH . '/subscriptions/{topic}/{subscriber}', stackMiddleware(
                 new GetSubscriptionController($mercure, $notFoundController),
                 $subscribeSecurityMiddleware
