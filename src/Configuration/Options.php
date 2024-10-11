@@ -18,6 +18,7 @@ use Amp\Http\Server\SocketHttpServer;
 use Psr\Log\LoggerInterface;
 use SwagIndustries\MercureRouter\Exception\MissingSecurityConfigurationException;
 use SwagIndustries\MercureRouter\Exception\WrongOptionException;
+use SwagIndustries\MercureRouter\Http\CorsConfiguration;
 use SwagIndustries\MercureRouter\Http\Router\DevRouterFactory;
 use SwagIndustries\MercureRouter\Http\Router\RouterFactory;
 use SwagIndustries\MercureRouter\Mercure\Hub;
@@ -62,13 +63,13 @@ class Options
     private ?Hub $hub;
     private ?RouterFactory $requestHandlerRouterFactory;
     private ?Security $security;
-    private array $corsOrigin;
-
+    private CorsConfiguration $corsConfig;
     private LoggerInterface $logger;
 
     public function __construct(
         string $sslCertificateFile,
         string $sslKeyFile,
+        CorsConfiguration $corsConfig,
         int $tlsPort = 443,
         int $unsecuredPort = 80,
         array $hosts = ['[::]', '0.0.0.0'], // open by default to the external network
@@ -80,8 +81,6 @@ class Options
         RouterFactory $requestHandlerRouterFactory = null,
         SecurityOptions $subscriberSecurity = null,
         SecurityOptions $publisherSecurity = null,
-        // TODO: fixme (security issue with *)
-        array $corsOrigin = ['*']
     ) {
         $this->setCertificate($sslCertificateFile);
         $this->setKey($sslKeyFile);
@@ -94,7 +93,7 @@ class Options
         $this->logger = $logger ?? DefaultLoggerFactory::createDefaultLogger($devMode);
         $this->requestHandlerRouterFactory = $requestHandlerRouterFactory;
         $this->security = null;
-        $this->corsOrigin = $corsOrigin;
+        $this->corsConfig = $corsConfig;
         $this->hub = null;
 
         if ($this->devMode) {
@@ -176,9 +175,9 @@ class Options
         return $this->logger;
     }
 
-    public function corsOrigins(): array
+    public function corsConfiguration(): CorsConfiguration
     {
-        return $this->corsOrigin;
+        return $this->corsConfig;
     }
 
     private function setKey(string $key): void

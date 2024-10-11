@@ -44,6 +44,17 @@ class RunCommandTest extends TestCase
         $this->commandTester->assertCommandIsSuccessful();
     }
 
+    public function testItRunWithSimpleConfigFile()
+    {
+        $server = $this->prophesize(Server::class)->reveal();
+        $this->fakeServerFactory->create(Argument::type(Options::class))
+            ->shouldBeCalled()
+            ->willReturn($server);
+
+        $this->commandTester->execute(['--config' => __DIR__ . '/../fixtures/minimal_configuration.json']);
+        $this->commandTester->assertCommandIsSuccessful();
+    }
+
     public function testItRunWithoutConfigFile()
     {
         $server = $this->prophesize(Server::class)->reveal();

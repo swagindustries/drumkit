@@ -5,6 +5,7 @@ namespace SwagIndustries\MercureRouter\Configuration;
 use League\Uri\Idna\Option;
 use Nekland\Tools\StringTools;
 use Psr\Log\LoggerInterface;
+use SwagIndustries\MercureRouter\Http\CorsConfiguration;
 
 class OptionsFactory
 {
@@ -16,6 +17,7 @@ class OptionsFactory
         return new Options(
             $config['network']['tls_certificate_file'],
             $config['network']['tls_key_file'],
+            CorsConfiguration::createFromArray($config['security']['cors']),
             $config['network']['tls_port'],
             $config['network']['unsecured_port'],
             $config['network']['hosts'],
@@ -31,14 +33,14 @@ class OptionsFactory
             new SecurityOptions(
                 $config['security']['publisher']['private_key'],
                 $config['security']['publisher']['algorithm']
-            ),
-            $config['security']['cors']['origin']
+            )
         );
     }
 
     public static function fromCommandOptions(
         string $tlsCert,
         string $tlsKey,
+        array $corsOrigin,
         ?string $subKey,
         ?string $subAlg,
         ?string $pubKey,
@@ -65,9 +67,14 @@ class OptionsFactory
             );
         }
 
+        if (empty($corsOrigin) && $devMode) {
+            $corsOrigin = ['*'];
+        }
+
         return new Options(
             $tlsCert,
             $tlsKey,
+            new CorsConfiguration($corsOrigin),
             activeSubscriptionEnabled: $activeSubscriptions,
             devMode: $devMode,
             subscriberSecurity: $subscriberSecurity,

@@ -62,13 +62,7 @@ class Server
 
         $this->enableConnection($httpServer, $tlsContext);
 
-        $corsConfig = ConfigurationBuilder::forOrigins(...$this->options->corsOrigins())
-            ->allowMethods('GET', 'POST')
-            ->withMaxAge(86400)
-            ->doAllowCredentials()
-            ->build();
-
-        $corsLoader = new SimpleConfigurationLoader($corsConfig);
+        $corsLoader = new SimpleConfigurationLoader($this->options->corsConfiguration());
 
         $httpServer->start(stackMiddleware(
             $this->options->requestHandlerRouter($httpServer),

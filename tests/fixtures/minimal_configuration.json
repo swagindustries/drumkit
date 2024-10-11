@@ -1,0 +1,17 @@
+{
+    "network": {
+        "tls_certificate_file": "ssl/mercure-router.local.pem",
+        "tls_key_file": "ssl/mercure-router.local-key.pem",
+    },
+    "security": {
+        "subscriber": {
+            "private_key": "!ChangeThisMercureHubJWTSecretKey!",
+        },
+        "publisher": {
+            "private_key": "!ChangeThisMercureHubJWTSecretKey!",
+        },
+        "cors": {
+            "origin": ["*"]
+        }
+    },
+}

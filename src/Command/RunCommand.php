@@ -38,10 +38,16 @@ class RunCommand extends Command
             // the command help shown when running the command with the "--help" option
             ->setHelp(<<<HELP
             This commmand run a mercure server.
-            
+
             You can use a configuration file with the option `--config`.
             The file format accepted is json5 (this means a json file where you can comment in),
             you can find its content reference in the official documentation.
+
+            Usage example for development :
+            bin/drumkit --tls-cert=ssl/mercure-router.local.pem --tls-key=ssl/mercure-router.local-key.pem --dev --active-subscriptions
+
+            Usage example for production :
+            bin/drumkit --config configuration.json
             HELP)
             ->addOption(
                 'config',
@@ -107,6 +113,13 @@ class RunCommand extends Command
                 InputOption::VALUE_NONE,
                 'Run the server in dev mode (shows more explicit errors, logs & run with xdebug)'
             )
+            ->addOption(
+                'corsOrigin',
+                null,
+                InputOption::VALUE_IS_ARRAY|InputOption::VALUE_REQUIRED,
+                'Specified authorised cors domain',
+                []
+            )
         ;
     }
 
@@ -135,6 +148,7 @@ class RunCommand extends Command
             $options = OptionsFactory::fromCommandOptions(
                 $tlsCert,
                 $tlsKey,
+                $input->getOption('corsOrigin'),
                 $input->getOption(self::OPTION_SECURITY_SUBSCRIBER_KEY),
                 $input->getOption(self::OPTION_SECURITY_SUBSCRIBER_ALG),
                 $input->getOption(self::OPTION_SECURITY_PUBLISHER_KEY),
