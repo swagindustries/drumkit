@@ -20,7 +20,7 @@ This project is currently a work in progress, here is a list of the rest to be d
 - [x] Header `Last-Event-ID` https://mercure.rocks/spec#reconciliation
 - [x] Redact help modal in UI
 - [ ] Fix all TODO remaining in the code
-- [ ] Fix dependencies to something stable
+- [x] Fix dependencies to something stable
 
 Prepare dev environment
 -----------------------

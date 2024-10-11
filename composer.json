@@ -37,7 +37,7 @@
         "symfony/config": "^6.2",
         "nekland/tools":"^2.6.2",
         "nikic/fast-route": "^1.3.0",
-        "cspray/labrador-http-cors": "dev-main#cff881f"
+        "cspray/labrador-http-cors": "1.0.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",
