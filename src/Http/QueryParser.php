@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is a part of mercure-router-php package.
  *
@@ -9,6 +8,7 @@
  * on the root directory of this project
  */
 declare(strict_types=1);
+
 namespace SwagIndustries\MercureRouter\Http;
 
 /**

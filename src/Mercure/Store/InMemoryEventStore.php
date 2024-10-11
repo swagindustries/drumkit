@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is a part of mercure-router-php package.
  *

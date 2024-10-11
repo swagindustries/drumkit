@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is a part of mercure-router-php package.
  *
@@ -10,6 +9,7 @@
  */
 
 declare(strict_types=1);
+
 namespace SwagIndustries\MercureRouter\Security;
 
 use Lcobucci\JWT\Configuration;

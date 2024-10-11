@@ -10,6 +10,7 @@
  */
 
 declare(strict_types=1);
+
 namespace SwagIndustries\MercureRouter\Security\Extractor;
 
 use Amp\Http\Server\Request;

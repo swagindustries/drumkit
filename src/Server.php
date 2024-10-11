@@ -22,7 +22,6 @@ use Amp\Http\Server\Middleware\ConcurrencyLimitingMiddleware;
 use Amp\Http\Server\SocketHttpServer;
 use Amp\Socket\BindContext;
 use Amp\Sync\LocalSemaphore;
-use Cspray\Labrador\Http\Cors\ConfigurationBuilder;
 use Cspray\Labrador\Http\Cors\CorsMiddleware;
 use Cspray\Labrador\Http\Cors\SimpleConfigurationLoader;
 use Psr\Log\LoggerInterface as PsrLogger;

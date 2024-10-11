@@ -8,6 +8,8 @@
  * on the root directory of this project
  */
 
+declare(strict_types=1);
+
 namespace SwagIndustries\MercureRouter\Mercure;
 
 use Amp\Pipeline\Queue;
@@ -26,7 +28,7 @@ class Subscriber
     public function __construct(array $topics, array $privateTopics = [], array $payload = [], ?string $lastEventId = null)
     {
         $this->emitter = new Queue();
-        $this->id = Uuid::v4();
+        $this->id = Uuid::v4()->toRfc4122();
         $this->topics = $topics;
         $this->privateTopics = $privateTopics;
         $this->payload = $payload;

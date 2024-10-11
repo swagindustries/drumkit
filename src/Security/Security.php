@@ -9,6 +9,7 @@
  */
 
 declare(strict_types=1);
+
 namespace SwagIndustries\MercureRouter\Security;
 
 use Amp\Http\Server\Request;

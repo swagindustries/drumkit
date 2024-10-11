@@ -8,6 +8,7 @@
  * on the root directory of this project
  */
 declare(strict_types=1);
+
 namespace SwagIndustries\MercureRouter\SSE;
 
 class Event
