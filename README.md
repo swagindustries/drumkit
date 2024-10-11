@@ -13,7 +13,7 @@ This project is currently a work in progress, here is a list of the rest to be d
 - [ ] Security: JWS verifications (on all endpoints)
 - [x] Security: CORS configuration (on all endpoints)
 - [x] Configuration by file
-- [ ] Test suite
+- [x] Test suite
 - [ ] Docker image
 - [ ] Benchmark
 - [x] Use new amphp version (with fibers)
