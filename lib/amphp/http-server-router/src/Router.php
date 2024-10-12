@@ -76,6 +76,8 @@ final class Router implements RequestHandler
         $method = $request->getMethod();
         $path = $request->getUri()->getPath();
 
+        $this->logger->debug('[Router] Matching path: "' . $path . '" with method '.$method);
+
         $toMatch = "{$method}\0{$path}";
 
         if (null === $match = $this->cache->get($toMatch)) {
