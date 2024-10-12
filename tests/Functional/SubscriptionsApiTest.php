@@ -16,6 +16,7 @@ use SwagIndustries\MercureRouter\Test\Functional\Tool\TestClient;
 use SwagIndustries\MercureRouter\Test\Functional\Tool\TestSubscriber;
 use Symfony\Component\Mercure\Jwt\LcobucciFactory;
 use function Amp\async;
+use function Amp\delay;
 use function Amp\Future\await;
 
 class SubscriptionsApiTest extends AbstractFunctionalTest
@@ -110,6 +111,7 @@ class SubscriptionsApiTest extends AbstractFunctionalTest
         [,[$response, $content]] = await([
             $subscriber1->subscribe(),
             async(function () use ($client, $subscriber1) {
+                delay(1);
                 $topic = urlencode('https://example.com/my-topic');
                 // Let some time pass for the subscription to be established
                 $res = $client->get(
@@ -143,7 +145,7 @@ class SubscriptionsApiTest extends AbstractFunctionalTest
         ]);
 
         $content = json_decode($content, true, flags: JSON_THROW_ON_ERROR);
-        var_dump($content);
+
         $this->assertEquals($response->getRequest()->getUri()->getPath(), $content['id']);
         $this->assertTrue($content['active']);
         $this->assertEquals('https://example.com/my-topic', $content['topic']);

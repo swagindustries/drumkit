@@ -86,8 +86,6 @@ class TestClient
                     $url = StringTools::removeStart($url, '/.well-known/mercure');
                 }
 
-
-                echo "request " . 'https://127.0.0.1:'.AbstractFunctionalTest::TLS_PORT.'/.well-known/mercure'. $url . "\n";
                 $request = new Request('https://127.0.0.1:'.AbstractFunctionalTest::TLS_PORT.'/.well-known/mercure'. $url, 'GET');
                 if ($token) {
                     $request->addHeader('Authorization', 'Bearer '.$token);
