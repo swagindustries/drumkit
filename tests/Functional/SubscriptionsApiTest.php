@@ -143,6 +143,7 @@ class SubscriptionsApiTest extends AbstractFunctionalTest
         ]);
 
         $content = json_decode($content, true, flags: JSON_THROW_ON_ERROR);
+        var_dump($content);
         $this->assertEquals($response->getRequest()->getUri()->getPath(), $content['id']);
         $this->assertTrue($content['active']);
         $this->assertEquals('https://example.com/my-topic', $content['topic']);
