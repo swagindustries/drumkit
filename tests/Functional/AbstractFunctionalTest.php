@@ -32,6 +32,14 @@ abstract class AbstractFunctionalTest extends TestCase
 
     protected function tearDown(): void
     {
+        $outputDir = __DIR__.'/../../logs';
+        if (!is_dir($outputDir)) {
+            mkdir($outputDir);
+        }
+
+        $file = $this->getName();
+        file_put_contents($outputDir.'/'.$file.'.out',$this->process->getOutput());
+        file_put_contents($outputDir.'/'.$file.'.err',$this->process->getErrorOutput());
         $this->process->stop();
     }
 }

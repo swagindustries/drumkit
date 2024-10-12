@@ -3,3 +3,4 @@ vendor/
 /ssl/mercure-router.local.pem
 .phpunit.result.cache
 composer.lock
+logs
