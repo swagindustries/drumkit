@@ -1,8 +1,16 @@
 <?php
 
+/**
+ * This file is a part of mercure-router-php package.
+ *
+ * (c) Swag Industries <nek.dev@gmail.com>
+ *
+ * For the full license, take a look to the LICENSE file
+ * on the root directory of this project
+ */
+
 namespace SwagIndustries\MercureRouter\Test\Functional;
 
-use PHPUnit\Framework\TestCase;
 use SwagIndustries\MercureRouter\Test\Functional\Tool\TestClient;
 use SwagIndustries\MercureRouter\Test\Functional\Tool\TestSubscriber;
 use Symfony\Component\HttpClient\HttpClient;
@@ -14,7 +22,7 @@ use function Amp\async;
 use function Amp\delay;
 use function Amp\Future\await;
 
-class SendUpdateUsingSymfonyClientTest extends TestCase
+class SendUpdateUsingSymfonyClientTest extends AbstractFunctionalTest
 {
     public function testSendUpdateUsingSymfonyHttpClient(): void
     {
@@ -27,7 +35,7 @@ class SendUpdateUsingSymfonyClientTest extends TestCase
         $httpClient = HttpClient::create(['verify_peer' => false, 'verify_host'=> false]);
         $token = (new LcobucciFactory(TestClient::PASSPHRASE_JWT))->create();
         $hub = new Hub(
-            'https://127.0.0.1/.well-known/mercure',
+            'https://127.0.0.1:'.self::TLS_PORT.'/.well-known/mercure',
             jwtProvider: new StaticTokenProvider($token),
             httpClient: $httpClient,
         );

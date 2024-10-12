@@ -56,7 +56,9 @@ class OptionsFactory
         ?string $pubKey,
         ?string $pubAlg,
         bool $activeSubscriptions,
-        bool $devMode
+        bool $devMode,
+        int $httpPort,
+        int $httpsPort,
     ): Options {
         $tlsKey = self::resolvePath($tlsKey);
         $tlsCert = self::resolvePath($tlsCert);
@@ -85,6 +87,8 @@ class OptionsFactory
             $tlsCert,
             $tlsKey,
             new CorsConfiguration($corsOrigin),
+            tlsPort: $httpsPort,
+            unsecuredPort: $httpPort,
             activeSubscriptionEnabled: $activeSubscriptions,
             devMode: $devMode,
             subscriberSecurity: $subscriberSecurity,

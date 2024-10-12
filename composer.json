@@ -49,6 +49,7 @@
         "amphp/http-client-cookies": "^2.0.0",
         "amphp/phpunit-util": "^3.0.0",
         "phpspec/prophecy-phpunit": "^2.2.0",
-        "dg/bypass-finals": "dev-master"
+        "dg/bypass-finals": "dev-master",
+        "symfony/process": "^7.1"
     }
 }

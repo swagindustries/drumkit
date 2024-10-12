@@ -1,17 +1,24 @@
 <?php
 
-namespace Functional;
+/**
+ * This file is a part of mercure-router-php package.
+ *
+ * (c) Swag Industries <nek.dev@gmail.com>
+ *
+ * For the full license, take a look to the LICENSE file
+ * on the root directory of this project
+ */
+
+namespace SwagIndustries\MercureRouter\Test\Functional;
 
 use Amp\Http\Client\Response;
-use PHPUnit\Framework\TestCase;
 use SwagIndustries\MercureRouter\Test\Functional\Tool\TestClient;
 use SwagIndustries\MercureRouter\Test\Functional\Tool\TestSubscriber;
 use Symfony\Component\Mercure\Jwt\LcobucciFactory;
 use function Amp\async;
-use function Amp\delay;
 use function Amp\Future\await;
 
-class SubscriptionsApiTest extends TestCase
+class SubscriptionsApiTest extends AbstractFunctionalTest
 {
     public const PASSPHRASE_JWT = '!ChangeThisMercureHubJWTSecretKey!';
     public function testSubscriptionsList(): void

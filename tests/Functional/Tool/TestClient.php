@@ -22,6 +22,7 @@ use Amp\Http\Client\Response;
 use Amp\Socket\ClientTlsContext;
 use Amp\Socket\ConnectContext;
 use Nekland\Tools\StringTools;
+use SwagIndustries\MercureRouter\Test\Functional\AbstractFunctionalTest;
 use Symfony\Component\Mercure\Jwt\LcobucciFactory;
 use function Amp\async;
 use function Amp\delay;
@@ -65,7 +66,7 @@ class TestClient
             $token = (new LcobucciFactory(self::PASSPHRASE_JWT))->create();
         }
 
-        $request = new Request('https://127.0.0.1/.well-known/mercure', 'POST', $body);
+        $request = new Request('https://127.0.0.1:'.AbstractFunctionalTest::TLS_PORT.'/.well-known/mercure', 'POST', $body);
         $request->addHeader('Authorization', 'Bearer '.$token);
         $response = $this->client->request($request);
 
@@ -86,7 +87,7 @@ class TestClient
                 }
 
 
-                $request = new Request('https://127.0.0.1/.well-known/mercure'. $url, 'GET');
+                $request = new Request('https://127.0.0.1:'.AbstractFunctionalTest::TLS_PORT.'/.well-known/mercure'. $url, 'GET');
                 if ($token) {
                     $request->addHeader('Authorization', 'Bearer '.$token);
                 }
