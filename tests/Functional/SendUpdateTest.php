@@ -12,12 +12,11 @@
 namespace SwagIndustries\MercureRouter\Test\Functional;
 
 use SwagIndustries\MercureRouter\Test\Functional\Tool\TestClient;
-use PHPUnit\Framework\TestCase;
 use SwagIndustries\MercureRouter\Test\Functional\Tool\TestSubscriber;
 use function Amp\async;
 use function Amp\Future\await;
 
-class SendUpdateTest extends TestCase
+class SendUpdateTest extends AbstractFunctionalTest
 {
     public function testSendUpdate(): void
     {

@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
   schedule:
     - cron:  '0 0 * * *'
 
@@ -26,11 +26,13 @@ jobs:
       - name: Install dependencies
         run: composer install
 
-      - name: Start server
-        run: php bin/drumkit --tls-cert=ssl/mercure-router.local.pem --tls-key=ssl/mercure-router.local-key.pem --dev --active-subscriptions &
-
-      - name: Wait for server to be ready
-        run: sleep 2
-
       - name: Run PHPUnit tests
         run: vendor/bin/phpunit
+
+      - name: Logs of the server by test
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-logs
+          path: |
+            logs

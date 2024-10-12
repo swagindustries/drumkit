@@ -23,6 +23,7 @@ use Amp\Http\Client\Response;
 use Amp\Socket\ClientTlsContext;
 use Amp\Socket\ConnectContext;
 use SwagIndustries\MercureRouter\Controller\SubscribeController;
+use SwagIndustries\MercureRouter\Test\Functional\AbstractFunctionalTest;
 use Symfony\Component\Mercure\Jwt\LcobucciFactory;
 use function Amp\async;
 use function Amp\delay;
@@ -62,7 +63,7 @@ class TestSubscriber
         }
 
         return async(function () use($token, $lastEventId) {
-            $request = new Request('https://127.0.0.1/.well-known/mercure?topic='.urlencode($this->topic), 'GET');
+            $request = new Request('https://127.0.0.1:'.AbstractFunctionalTest::TLS_PORT.'/.well-known/mercure?topic='.urlencode($this->topic), 'GET');
             $request->addHeader('Authorization', 'Bearer '.$token);
             $request->setInactivityTimeout($this->timeout);
             $request->setTransferTimeout($this->timeout);

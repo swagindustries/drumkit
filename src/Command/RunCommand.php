@@ -33,6 +33,9 @@ class RunCommand extends Command
     private const OPTION_SECURITY_PUBLISHER_KEY = 'security-publisher-key';
     private const OPTION_SECURITY_SUBSCRIBER_ALG = 'security-subscriber-algorithm';
     private const OPTION_SECURITY_SUBSCRIBER_KEY = 'security-subscriber-key';
+    private const OPTION_CORS_ORIGIN_KEY = 'corsOrigin';
+    private const OPTION_PORT_HTTP = 'http-port';
+    private const OPTION_PORT_HTTPS = 'https-port';
     protected static $defaultDescription = 'Start Drumkit (run a Mercure server)';
 
     public function __construct(
@@ -124,11 +127,25 @@ class RunCommand extends Command
                 'Run the server in dev mode (shows more explicit errors, logs & run with xdebug)'
             )
             ->addOption(
-                'corsOrigin',
+                self::OPTION_CORS_ORIGIN_KEY,
                 null,
                 InputOption::VALUE_IS_ARRAY|InputOption::VALUE_REQUIRED,
                 'Specified authorised cors domain',
                 []
+            )
+            ->addOption(
+                self::OPTION_PORT_HTTP,
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Port number for HTTP',
+                80
+            )
+            ->addOption(
+                self::OPTION_PORT_HTTPS,
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Port number for HTTPS',
+                443
             )
         ;
     }
@@ -158,13 +175,15 @@ class RunCommand extends Command
             $options = OptionsFactory::fromCommandOptions(
                 $tlsCert,
                 $tlsKey,
-                $input->getOption('corsOrigin'),
+                $input->getOption(self::OPTION_CORS_ORIGIN_KEY),
                 $input->getOption(self::OPTION_SECURITY_SUBSCRIBER_KEY),
                 $input->getOption(self::OPTION_SECURITY_SUBSCRIBER_ALG),
                 $input->getOption(self::OPTION_SECURITY_PUBLISHER_KEY),
                 $input->getOption(self::OPTION_SECURITY_PUBLISHER_ALG),
                 $input->getOption(self::OPTION_FEATURE_SUBSCRIPTIONS),
-                devMode: $devMode
+                devMode: $devMode,
+                httpPort: (int) $input->getOption(self::OPTION_PORT_HTTP),
+                httpsPort: (int) $input->getOption(self::OPTION_PORT_HTTPS),
             );
         } else {
             $output->writeln('<error>You need to provide at least TLS certificates to run the server. Run command `drumkit --help` to learn more.</error>');

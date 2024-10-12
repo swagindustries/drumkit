@@ -16,6 +16,8 @@ use Amp\Http\Server\Request;
 use Amp\Http\Server\RequestHandler;
 use Amp\Http\Server\Response;
 use Amp\Http\Server\Router;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use SwagIndustries\MercureRouter\Controller\NotFoundController;
 use SwagIndustries\MercureRouter\Mercure\Hub;
 use SwagIndustries\MercureRouter\Security\Security;
@@ -24,10 +26,15 @@ class GetTopicSubscriptionsController implements RequestHandler
 {
     use SubscriptionNormalizerTrait;
     use SubscriptionApiResponseTrait;
-    public function __construct(private Hub $mercure, private NotFoundController $notFound) {}
+    public function __construct(
+        private Hub $mercure,
+        private NotFoundController $notFound,
+        private LoggerInterface $logger = new NullLogger()
+    ) {}
     public function handleRequest(Request $request): Response
     {
         ['topic' => $topicQuery] = $request->getAttribute(Router::class);
+        $this->logger->debug('[API] Get topic subscriptions for topic "' . $topicQuery . '"');
 
         /** @var array{subscribe: array|string|null, payload?: array} $jwtContent */
         $jwtContent = $request->getAttribute(Security::ATTRIBUTE_JWT_PAYLOAD)['mercure'] ?? [];
