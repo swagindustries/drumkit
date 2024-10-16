@@ -14,6 +14,7 @@ namespace SwagIndustries\MercureRouter\Test\Functional;
 use SwagIndustries\MercureRouter\Test\Functional\Tool\TestClient;
 use SwagIndustries\MercureRouter\Test\Functional\Tool\TestSubscriber;
 use function Amp\async;
+use function Amp\delay;
 use function Amp\Future\await;
 
 class SendUpdateTest extends AbstractFunctionalTest
@@ -30,6 +31,7 @@ class SendUpdateTest extends AbstractFunctionalTest
         [,,$hasReceivedMessage] = await([
             $subscription,
             async(function () {
+                delay(0.2);
                 $client = new TestClient();
 
                 $client->sendUpdate([

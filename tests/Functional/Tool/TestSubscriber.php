@@ -97,13 +97,13 @@ class TestSubscriber
         $data = json_encode($data, flags: JSON_THROW_ON_ERROR);
 
         return async(function () use ($data) {
-            for ($i = 0; $i < 10; $i++) {
+            for ($i = 0; $i < 20; $i++) {
                 if (str_contains($this->buffer, $data)) {
                     $this->stop();
                     return true;
                 }
 
-                delay(0.1); // Wait for 1 second for a message to be received
+                delay(0.1); // Wait for 2 second (0.1*20) for a message to be received
             }
 
             $this->stop();
