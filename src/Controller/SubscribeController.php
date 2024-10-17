@@ -44,8 +44,9 @@ class SubscribeController implements RequestHandler
         /** @var array{subscribe: array|string|null, payload?: array} $jwtContent */
         $jwtContent = $request->getAttribute(Security::ATTRIBUTE_JWT_PAYLOAD)['mercure'] ?? [];
 
+        $topics = (array) $query['topic'];
         $subscriber = new Subscriber(
-            (array) $query['topic'],
+            $topics,
             $this->validateAndReturnTopics((array) ($jwtContent['subscribe'] ?? [])),
             (array) ($jwtContent['payload'] ?? []),
             $lastEventId
