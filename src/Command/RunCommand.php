@@ -15,6 +15,7 @@ namespace SwagIndustries\MercureRouter\Command;
 use SwagIndustries\MercureRouter\Configuration\ConfigFileValidator;
 use SwagIndustries\MercureRouter\Configuration\Options;
 use SwagIndustries\MercureRouter\Configuration\OptionsFactory;
+use SwagIndustries\MercureRouter\Exception\MissingOptionException;
 use SwagIndustries\MercureRouter\MercureServerFactory;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -26,16 +27,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'run')]
 class RunCommand extends Command
 {
-    private const OPTION_TLS_KEY = 'tls-key';
-    private const OPTION_TLS_CERT = 'tls-cert';
-    private const OPTION_FEATURE_SUBSCRIPTIONS = 'active-subscriptions';
-    private const OPTION_SECURITY_PUBLISHER_ALG = 'security-publisher-algorithm';
-    private const OPTION_SECURITY_PUBLISHER_KEY = 'security-publisher-key';
-    private const OPTION_SECURITY_SUBSCRIBER_ALG = 'security-subscriber-algorithm';
-    private const OPTION_SECURITY_SUBSCRIBER_KEY = 'security-subscriber-key';
-    private const OPTION_CORS_ORIGIN_KEY = 'corsOrigin';
-    private const OPTION_PORT_HTTP = 'http-port';
-    private const OPTION_PORT_HTTPS = 'https-port';
     protected static $defaultDescription = 'Start Drumkit (run a Mercure server)';
 
     public function __construct(
@@ -79,43 +70,43 @@ class RunCommand extends Command
                 }
             )
             ->addOption(
-                self::OPTION_TLS_CERT,
+                OptionsFactory::OPTION_TLS_CERT,
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Path to an TLS certificate used for HTTPS support - overrides the file config'
             )
             ->addOption(
-                self::OPTION_TLS_KEY,
+                OptionsFactory::OPTION_TLS_KEY,
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Path to an TLS key used for HTTPS support - overrides the file config'
             )
             ->addOption(
-                self::OPTION_FEATURE_SUBSCRIPTIONS,
+                OptionsFactory::OPTION_FEATURE_SUBSCRIPTIONS,
                 null,
                 InputOption::VALUE_NONE,
                 'Enables the active subscriptions feature'
             )
             ->addOption(
-                self::OPTION_SECURITY_PUBLISHER_KEY,
+                OptionsFactory::OPTION_SECURITY_PUBLISHER_KEY,
                 'sec-pub-key',
                 InputOption::VALUE_REQUIRED,
                 'Private key for publisher JWT validation',
             )
             ->addOption(
-                self::OPTION_SECURITY_PUBLISHER_ALG,
+                OptionsFactory::OPTION_SECURITY_PUBLISHER_ALG,
                 'sec-pub-alg',
                 InputOption::VALUE_REQUIRED,
                 'Security algorithm to be use for JWT encryption for publishing. Defaults to "' . Options::DEFAULT_SECURITY_ALG->value . '"'
             )
             ->addOption(
-                self::OPTION_SECURITY_SUBSCRIBER_KEY,
+                OptionsFactory::OPTION_SECURITY_SUBSCRIBER_KEY,
                 'sec-sub-key',
                 InputOption::VALUE_REQUIRED,
                 'Private key for subscriber JWT validation',
             )
             ->addOption(
-                self::OPTION_SECURITY_SUBSCRIBER_ALG,
+                OptionsFactory::OPTION_SECURITY_SUBSCRIBER_ALG,
                 'sec-sub-alg',
                 InputOption::VALUE_REQUIRED,
                 'Security algorithm to be use for JWT encryption for subscribing. Defaults to "' . Options::DEFAULT_SECURITY_ALG->value . '"'
@@ -127,21 +118,21 @@ class RunCommand extends Command
                 'Run the server in dev mode (shows more explicit errors, logs & run with xdebug)'
             )
             ->addOption(
-                self::OPTION_CORS_ORIGIN_KEY,
+                OptionsFactory::OPTION_CORS_ORIGIN_KEY,
                 null,
                 InputOption::VALUE_IS_ARRAY|InputOption::VALUE_REQUIRED,
                 'Specified authorised cors domain',
                 []
             )
             ->addOption(
-                self::OPTION_PORT_HTTP,
+                OptionsFactory::OPTION_PORT_HTTP,
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Port number for HTTP',
                 80
             )
             ->addOption(
-                self::OPTION_PORT_HTTPS,
+                OptionsFactory::OPTION_PORT_HTTPS,
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Port number for HTTPS',
@@ -153,8 +144,8 @@ class RunCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $configFile = $input->getOption('config');
-        $tlsKey = $input->getOption(self::OPTION_TLS_KEY);
-        $tlsCert = $input->getOption(self::OPTION_TLS_CERT);
+        $tlsKey = $input->getOption(OptionsFactory::OPTION_TLS_KEY);
+        $tlsCert = $input->getOption(OptionsFactory::OPTION_TLS_CERT);
         $devMode = $input->getOption('dev');
 
         if ($configFile !== null) {
@@ -171,23 +162,26 @@ class RunCommand extends Command
                 config: $resolvedConfig,
                 devMode: $devMode
             );
-        } else if (!empty($tlsCert) && !empty($tlsKey)) {
-            $options = OptionsFactory::fromCommandOptions(
-                $tlsCert,
-                $tlsKey,
-                $input->getOption(self::OPTION_CORS_ORIGIN_KEY),
-                $input->getOption(self::OPTION_SECURITY_SUBSCRIBER_KEY),
-                $input->getOption(self::OPTION_SECURITY_SUBSCRIBER_ALG),
-                $input->getOption(self::OPTION_SECURITY_PUBLISHER_KEY),
-                $input->getOption(self::OPTION_SECURITY_PUBLISHER_ALG),
-                $input->getOption(self::OPTION_FEATURE_SUBSCRIPTIONS),
-                devMode: $devMode,
-                httpPort: (int) $input->getOption(self::OPTION_PORT_HTTP),
-                httpsPort: (int) $input->getOption(self::OPTION_PORT_HTTPS),
-            );
         } else {
-            $output->writeln('<error>You need to provide at least TLS certificates to run the server. Run command `drumkit --help` to learn more.</error>');
-            return Command::FAILURE;
+            try {
+                $options = OptionsFactory::fromCommandOptions(
+                    $tlsCert,
+                    $tlsKey,
+                    $input->getOption(OptionsFactory::OPTION_CORS_ORIGIN_KEY),
+                    $input->getOption(OptionsFactory::OPTION_SECURITY_SUBSCRIBER_KEY),
+                    $input->getOption(OptionsFactory::OPTION_SECURITY_SUBSCRIBER_ALG),
+                    $input->getOption(OptionsFactory::OPTION_SECURITY_PUBLISHER_KEY),
+                    $input->getOption(OptionsFactory::OPTION_SECURITY_PUBLISHER_ALG),
+                    $input->getOption(OptionsFactory::OPTION_FEATURE_SUBSCRIPTIONS),
+                    devMode: $devMode,
+                    httpPort: (int) $input->getOption(OptionsFactory::OPTION_PORT_HTTP),
+                    httpsPort: (int) $input->getOption(OptionsFactory::OPTION_PORT_HTTPS),
+                );
+            } catch (MissingOptionException $e) {
+                $output->writeln('<error>'.$e->getMessage().'.</error>');
+                $output->writeln('<info>Run command `drumkit --help` to learn more.</info>');
+                return Command::FAILURE;
+            }
         }
 
         $server = $this->serverFactory->create($options);
