@@ -8,6 +8,11 @@ configure-dev: ## Prepare dev environment
 .PHONY: configure
 
 
+compile: ## Generates the .phar file (requires cpx installed globally)
+	cpx humbug/box compile
+.PHONY: compile
+
+
 help: SHELL=/bin/bash
 help: ## Dislay this help
 	@IFS=$$'\n'; for line in `grep -h -E '^[a-zA-Z_#-]+:?.*?## .*$$' $(MAKEFILE_LIST)`; do if [ "$${line:0:2}" = "##" ]; then \
