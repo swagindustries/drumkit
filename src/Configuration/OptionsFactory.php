@@ -31,6 +31,7 @@ class OptionsFactory
     public const OPTION_SECURITY_SUBSCRIBER_KEY = 'security-subscriber-key';
     public const OPTION_TLS_CERT = 'tls-cert';
     public const OPTION_SECURITY_PUBLISHER_ALG = 'security-publisher-algorithm';
+    public const OPTION_DEV = 'dev';
 
     public static function fromFile(array $config, LoggerInterface $logger = null, bool $devMode = false): Options
     {
@@ -85,6 +86,9 @@ class OptionsFactory
         }
 
         $corsOrigin = self::env(self::OPTION_CORS_ORIGIN_KEY, 'array') ?? $corsOrigin;
+        if ($devModeEnv = self::env(self::OPTION_DEV, 'bool') !== null) {
+            $devMode = $devModeEnv;
+        }
         if (empty($corsOrigin) && $devMode) {
             $corsOrigin = ['*'];
         }

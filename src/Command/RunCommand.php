@@ -112,7 +112,7 @@ class RunCommand extends Command
                 'Security algorithm to be use for JWT encryption for subscribing. Defaults to "' . Options::DEFAULT_SECURITY_ALG->value . '"'
             )
             ->addOption(
-                'dev',
+                OptionsFactory::OPTION_DEV,
                 null,
                 InputOption::VALUE_NONE,
                 'Run the server in dev mode (shows more explicit errors, logs & run with xdebug)'
