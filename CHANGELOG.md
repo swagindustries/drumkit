@@ -6,6 +6,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] - XXXX-XX-XX
+## [0.2.0] - 2024-10-27
+
+### Added
+
+- Ability to configure drumkit with environment variables
+- Build pack: box configuration, docker configuration, CI updated
+
+## [0.1.0] - 2024-10-17
 
 This is the first version, it contains the first released code.
+
+### Added
+
+- Ability to Subscribe
+- Ability to publish
+- Active subscriptions support
+- Active subscription API
+- Discoverability
+- Security with cookie or http authorization header
+- Recovers events
