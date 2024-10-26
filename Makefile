@@ -1,12 +1,23 @@
 .DEFAULT_GOAL := help
 
+phar: clean ## [CI] Build a phar with box
+	composer install
+	box compile
+.PHONY: phar
 
-configure-dev: ## Prepare dev environment
+configure-dev: ## [DEV] Prepare dev environment
 	mkcert -install
 	mkcert -cert-file ssl/mercure-router.local.pem -key-file ssl/mercure-router.local-key.pem "mercure-router.local"
 	@echo "Please add mercure-router.local to your /etc/hosts file to complete the installation!"
 .PHONY: configure
 
+compile: ## [DEV] Generates the .phar file (requires cpx installed globally)
+	cpx humbug/box compile
+.PHONY: compile
+
+clean:
+	rm -rf vendor logs composer.lock bin/drumkit.phar
+.PHONY: clean
 
 help: SHELL=/bin/bash
 help: ## Dislay this help

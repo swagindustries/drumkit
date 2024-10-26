@@ -10,16 +10,15 @@ This project is currently a work in progress, here is a list of the rest to be d
 
 - [x] Active subscriptions events
 - [x] Active subscriptions API
-- [ ] Security: JWS verifications (on all endpoints)
+- [x] Security: JWS verifications (on all endpoints)
 - [x] Security: CORS configuration (on all endpoints)
 - [x] Configuration by file
 - [x] Test suite
-- [ ] Docker image
+- [x] Docker image
 - [ ] Benchmark
 - [x] Use new amphp version (with fibers)
 - [x] Header `Last-Event-ID` https://mercure.rocks/spec#reconciliation
 - [x] Redact help modal in UI
-- [ ] Fix all TODO remaining in the code
 - [x] Fix dependencies to something stable
 
 Prepare dev environment
