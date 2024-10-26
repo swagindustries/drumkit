@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2024-10-27
+
+### Added
+
+- Linux arm64 to docker build config (allow docker to work natively on macOS)
+
 ## [0.2.0] - 2024-10-27
 
 ### Added
