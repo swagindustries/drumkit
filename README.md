@@ -1,7 +1,36 @@
-Drumkit
+DRUMKIT
 =======
 
 Mercure hub, in PHP.
+
+How to run it
+-------------
+
+The easiest way is probably to run it in docker:
+
+```
+docker run \
+    -e DRUMKIT_TLS_KEY=/ssl/mercure-router.local-key.pem \
+    -e DRUMKIT_TLS_CERT=/ssl/mercure-router.local.pem \
+    -e DRUMKIT_CORSORIGIN=mercure-router.local \
+    -e DRUMKIT_SECURITY_PUBLISHER_KEY='!ChangeThisMercureHubJWTSecretKey!' \
+    -e DRUMKIT_SECURITY_SUBSCRIBER_KEY='!ChangeThisMercureHubJWTSecretKey!' \
+    -v ./ssl:/ssl \
+    --rm -it nekdev/drumkit
+```
+
+Please notice that you must provide SSL certificates to run drumkit.
+
+You may want to use mkcert to quickly generate certificates in local:
+
+```bash
+# Generate a certification and install it in your browsers
+mkcert -install
+
+# Create a certificate for mercure-router.local
+# Change the value of the option corsOrigin to make it work with DRUMKIT
+mkcert -cert-file ssl/mercure-router.local.pem -key-file ssl/mercure-router.local-key.pem "mercure-router.local"
+```
 
 Prepare dev environment
 -----------------------
@@ -30,12 +59,13 @@ Then open https://mercure-router.local in your browser.
 If you are running the command with `--dev` option, you should be redirected to
 https://mercure-router.local/.well-known/mercure/ui/
 
-:information_source: You can also use a file to configure drumkit, see documentation for more information.
+:information_source: You can also use a file to configure DRUMKIT, see documentation for more information.
 
 Roadmap for v1.0.0
 ------------------
 
 - [] Support Redis as event storage
+- [] Add no-ssl option (to make it possible to run it behinds a proxy easily)
 
 Running in production
 ---------------------
