@@ -1,5 +1,5 @@
 {
-    "name": "swag-industries/mercure-router",
+    "name": "swag-industries/drumkit",
     "type": "project",
     "license": "MIT",
     "autoload": {
@@ -51,5 +51,8 @@
         "phpspec/prophecy-phpunit": "^2.2.0",
         "dg/bypass-finals": "dev-master",
         "symfony/process": "^7.1"
-    }
+    },
+    "bin": [
+        "bin/drumkit"
+    ]
 }
