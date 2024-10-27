@@ -64,8 +64,8 @@ https://mercure-router.local/.well-known/mercure/ui/
 Roadmap for v1.0.0
 ------------------
 
-- [] Support Redis as event storage
-- [] Add no-ssl option (to make it possible to run it behinds a proxy easily)
+- [ ] Support Redis as event storage
+- [ ] Add no-ssl option (to make it possible to run it behinds a proxy easily)
 
 Running in production
 ---------------------
