@@ -6,6 +6,8 @@ Mercure hub, in PHP.
 **Discover Mercure:** The best way to discover Mercure is to run the server in dev mode with active subcription. This
 enables all the features including a UI (you'll be redirected on) where you can quickly test mercure locally.
 
+![](docs/screenshot.jpeg)
+
 How to run it
 -------------
 
