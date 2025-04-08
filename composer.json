@@ -1,5 +1,6 @@
 {
     "name": "swag-industries/drumkit",
+    "description": "Mercure Hub, free, complete, in PHP.",
     "type": "project",
     "license": "MIT",
     "autoload": {
