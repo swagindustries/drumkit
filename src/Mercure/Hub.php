@@ -25,7 +25,7 @@ class Hub
     /** @var Subscriber[] */
     private Privacy $privacy;
 
-    public function __construct(private EventStoreInterface $store, Privacy $privacy = null)
+    public function __construct(private EventStoreInterface $store, ?Privacy $privacy = null)
     {
         $this->privacy = $privacy ?? new Privacy;
         $this->subscribers = new Deque();

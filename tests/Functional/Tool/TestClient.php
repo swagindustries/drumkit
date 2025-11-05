@@ -44,7 +44,7 @@ class TestClient
             ->build();
     }
 
-    public function sendUpdate(array $data, bool $isPrivate = false, string $token = null): Response
+    public function sendUpdate(array $data, bool $isPrivate = false, string|null $token = null): Response
     {
         $body = new Form();
         $body->addField('topic', $data['topic']);

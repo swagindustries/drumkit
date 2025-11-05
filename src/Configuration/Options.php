@@ -77,10 +77,10 @@ class Options
         bool $activeSubscriptionEnabled = false,
         // The dev mode enables the UI/Debugger
         bool $devMode = false,
-        LoggerInterface $logger = null,
-        RouterFactory $requestHandlerRouterFactory = null,
-        SecurityOptions $subscriberSecurity = null,
-        SecurityOptions $publisherSecurity = null,
+        ?LoggerInterface $logger = null,
+        ?RouterFactory $requestHandlerRouterFactory = null,
+        ?SecurityOptions $subscriberSecurity = null,
+        ?SecurityOptions $publisherSecurity = null,
     ) {
         $this->setCertificate($sslCertificateFile);
         $this->setKey($sslKeyFile);

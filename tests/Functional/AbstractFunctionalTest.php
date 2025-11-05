@@ -7,7 +7,7 @@ use Symfony\Component\Process\Process;
 
 abstract class AbstractFunctionalTest extends TestCase
 {
-    public const UNSECURED_PORT = 8080;
+    public const UNSECURED_PORT = 8090;
     public const TLS_PORT = 4443;
     private Process $process;
     protected function setUp(): void
@@ -28,6 +28,9 @@ abstract class AbstractFunctionalTest extends TestCase
         $this->process->waitUntil(function ($type, $buffer) {
             return str_contains($buffer, 'Listening on');
         });
+        if ($this->process->isTerminated() && $this->process->getExitCode() !== 0) {
+            throw new \Exception('Running the server failed');
+        }
     }
 
     protected function tearDown(): void

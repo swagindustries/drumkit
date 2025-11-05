@@ -24,7 +24,7 @@ class InMemoryEventStore implements EventStoreInterface
     private int $size;
     private LoggerInterface $logger;
 
-    public function __construct($size = 1000, LoggerInterface $logger = null)
+    public function __construct($size = 1000, ?LoggerInterface $logger = null)
     {
         $this->store = new Map();
         $this->size = $size;

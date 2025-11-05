@@ -56,7 +56,7 @@ class TestSubscriber
         $this->timeout = $timeout;
     }
 
-    public function subscribe(string $token = null, string $lastEventId = null): Future
+    public function subscribe(string|null $token = null, string|null $lastEventId = null): Future
     {
         if ($token === null) {
             $token = (new LcobucciFactory(self::PASSPHRASE_JWT))->create(['https://example.com/my-private-topic']);

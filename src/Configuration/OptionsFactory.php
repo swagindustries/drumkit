@@ -33,7 +33,7 @@ class OptionsFactory
     public const OPTION_SECURITY_PUBLISHER_ALG = 'security-publisher-algorithm';
     public const OPTION_DEV = 'dev';
 
-    public static function fromFile(array $config, LoggerInterface $logger = null, bool $devMode = false): Options
+    public static function fromFile(array $config, ?LoggerInterface $logger = null, bool $devMode = false): Options
     {
         $config['network']['tls_certificate_file'] = self::env(self::OPTION_TLS_CERT) ?? self::resolvePath($config['network']['tls_certificate_file']);
         $config['network']['tls_key_file'] = self::env(self::OPTION_TLS_KEY) ?? self::resolvePath($config['network']['tls_key_file']);

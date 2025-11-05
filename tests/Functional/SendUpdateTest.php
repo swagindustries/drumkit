@@ -25,11 +25,8 @@ class SendUpdateTest extends AbstractFunctionalTest
             topic: 'https://example.com/my-private-topic',
         );
 
-        $subscription = $subscriber->subscribe();
-
-
         [,,$hasReceivedMessage] = await([
-            $subscription,
+            $subscriber->subscribe(),
             async(function () {
                 delay(0.2);
                 $client = new TestClient();
