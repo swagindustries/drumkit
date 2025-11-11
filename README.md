@@ -59,6 +59,14 @@ Run it with:
     [--dev]
 ```
 
+* TLS options are a requirement for HTTPS support (which is required for mercure)
+* security keys are the password for the JWT crypto used by this hub
+* CORS options are required to be used by a browser frontend (but optional if you are using it machine-to-machine)
+* Dev option enables many possibilities:
+  * You can access to the UI (by navigating to the client)
+  * CORS options are preset by default to open to anything
+  * The hub print extensive logging to the output
+
 Then open https://mercure-router.local in your browser.
 
 If you are running the command with `--dev` option, you should be redirected to
